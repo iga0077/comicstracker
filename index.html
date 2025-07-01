@@ -1547,6 +1547,11 @@
                 <input type="text" id="newListName" placeholder="Название нового списка чтения">
                 <button class="btn btn-primary" onclick="addReadingList()">Добавить список</button>
             </div>
+
+                <!-- Кнопка для сворачивания/разворачивания списка чтения на мобильных -->
+            <button class="reading-lists-toggle-btn mobile-top" id="readingListsToggleBtn" style="display:none;">
+                <span id="readingListsToggleIcon">☰</span> <span id="readingListsToggleText">Показать списки</span>
+            </button>
             
             <div class="reading-lists-grid-page" id="readingListsGrid"></div>
             <div id="readingListsContainer"></div>
@@ -1657,10 +1662,7 @@
         </div>
     </div>
 
-    <!-- Кнопка для сворачивания/разворачивания списка чтения на мобильных -->
-    <button class="reading-lists-toggle-btn mobile-top" id="readingListsToggleBtn" style="display:none;">
-        <span id="readingListsToggleIcon">☰</span> <span id="readingListsToggleText">Показать списки</span>
-    </button>
+
 
     <script>
         // Данные
