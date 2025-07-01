@@ -1337,6 +1337,23 @@
             border-right: 1px solid #475569;
         }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyBrlOVpLyaQC-j35jKI6dpUROeJ4Q2dXaU",
+        authDomain: "igatrackers.firebaseapp.com",
+        projectId: "igatrackers",
+        storageBucket: "igatrackers.appspot.com",
+        messagingSenderId: "629727578641",
+        appId: "1:629727578641:web:c85bd10081c56e0e283fb0",
+        measurementId: "G-MZ6W6B5MTX"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+    </script>
 </head>
 <body>
     <div class="header">
@@ -1344,6 +1361,11 @@
         <div class="header-right">
             <button class="btn btn-secondary" onclick="exportData()" title="Экспорт данных">📤</button>
             <button class="btn btn-secondary" onclick="importData()" title="Импорт данных">📥</button>
+            <div id="authSection" style="display:inline-block; margin-left:10px;">
+                <button id="loginBtn" class="btn btn-secondary" onclick="loginWithGoogle()">Войти через Google</button>
+                <button id="logoutBtn" class="btn btn-secondary" onclick="logout()" style="display:none;">Выйти</button>
+                <span id="userName" style="margin-left:10px;"></span>
+            </div>
         </div>
         <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImport(event)">
     </div>
@@ -1536,8 +1558,47 @@
         // Сохраняем режим сортировки для каждого списка
         let listSortModes = JSON.parse(localStorage.getItem('marvel-list-sort-modes') || '{}');
 
-        // Сохранение данных
+        // --- FIREBASE AUTH ---
+        function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider);
+        }
+        function logout() {
+            auth.signOut();
+        }
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'inline-block';
+                document.getElementById('userName').textContent = user.displayName || user.email;
+                loadUserDataFromFirestore();
+            } else {
+                document.getElementById('loginBtn').style.display = 'inline-block';
+                document.getElementById('logoutBtn').style.display = 'none';
+                document.getElementById('userName').textContent = '';
+                // Очищаем данные (можно оставить localStorage как fallback)
+                // comicsData = [];
+                // readingLists = [];
+                // ...
+                // renderCollection();
+                // renderReadingLists();
+            }
+        });
+
+        // --- FIRESTORE SAVE/LOAD ---
         function saveData() {
+            const user = auth.currentUser;
+            if (user) {
+                db.collection('comics').doc(user.uid).set({
+                    comicsData,
+                    readingLists,
+                    listOrders,
+                    listViewModes,
+                    appSettings,
+                    currentlyReading
+                });
+            }
+            // Можно оставить localStorage для оффлайн-режима
             localStorage.setItem('marvel-comics-data', JSON.stringify(comicsData));
             localStorage.setItem('marvel-reading-lists', JSON.stringify(readingLists));
             localStorage.setItem('marvel-list-orders', JSON.stringify(listOrders));
@@ -1545,8 +1606,58 @@
             appSettings.view = currentView;
             appSettings.sort = currentSort;
             localStorage.setItem('marvel-app-settings', JSON.stringify(appSettings));
-			localStorage.setItem('marvel-currently-reading', JSON.stringify(currentlyReading));
+            localStorage.setItem('marvel-currently-reading', JSON.stringify(currentlyReading));
             localStorage.setItem('marvel-list-sort-modes', JSON.stringify(listSortModes));
+        }
+
+        function loadUserDataFromFirestore() {
+            const user = auth.currentUser;
+            if (!user) return;
+            db.collection('comics').doc(user.uid).get().then(doc => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    comicsData = data.comicsData || [];
+                    readingLists = data.readingLists || [];
+                    listOrders = data.listOrders || {};
+                    listViewModes = data.listViewModes || {};
+                    appSettings = data.appSettings || {};
+                    currentlyReading = data.currentlyReading || {};
+                    currentView = appSettings.view || 'list';
+                    currentSort = appSettings.sort || 'dateAdded';
+                    renderCollection();
+                    renderReadingLists();
+                } else {
+                    // Если данных нет, используем локальные или дефолтные
+                    comicsData = JSON.parse(localStorage.getItem('marvel-comics-data') || '[]');
+                    readingLists = JSON.parse(localStorage.getItem('marvel-reading-lists') || JSON.stringify([
+                        'Современный Marvel',
+                        'Веном',
+                        'Человек-паук',
+                        'Люди-Икс',
+                        'Каратель',
+                        'Лунный Рыцарь',
+                        'Чёрная вдова',
+                        'Сорвиголова',
+                        'Халк',
+                        'Тор',
+                        'Железный Человек',
+                        'Мстители',
+                        'Фантастическая Четвёрка',
+                        'Доктор Стэндж',
+                        'Капитан Америка',
+                        'Зимний солдат',
+                        'Дэдпул'
+                    ]));
+                    listOrders = JSON.parse(localStorage.getItem('marvel-list-orders') || '{}');
+                    listViewModes = JSON.parse(localStorage.getItem('marvel-list-view-modes') || '{}');
+                    appSettings = JSON.parse(localStorage.getItem('marvel-app-settings') || '{}');
+                    currentlyReading = JSON.parse(localStorage.getItem('marvel-currently-reading') || '{}');
+                    currentView = appSettings.view || 'list';
+                    currentSort = appSettings.sort || 'dateAdded';
+                    renderCollection();
+                    renderReadingLists();
+                }
+            });
         }
 
         // Переключение вида списка чтения
