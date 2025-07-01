@@ -2884,6 +2884,13 @@ function getSortedComicsForList(listName) {
 					comic.readingLists && comic.readingLists.includes(listName)
 				);
 				const readCount = listComics.filter(c => c.isRead).length;
+				// Новый код: считаем выпуски
+				let totalIssues = 0;
+				let readIssues = 0;
+				listComics.forEach(comic => {
+					totalIssues += comic.totalIssues || 0;
+					readIssues += comic.readIssues || 0;
+				});
 				let isActive = false;
 				if (readingListsMode === 'double') {
 					isActive = openedLists.includes(listName);
@@ -2893,7 +2900,7 @@ function getSortedComicsForList(listName) {
 				return `
 					<div class="reading-list-card ${isActive ? 'active' : ''}" onmouseenter="this.classList.add('hovered')" onmouseleave="this.classList.remove('hovered')" onclick="toggleReadingList('${listName}')">
 						<div class="reading-list-card-title">${listName}</div>
-						<div class="reading-list-card-meta">${readCount}/${listComics.length} прочитано</div>
+						<div class="reading-list-card-meta">${readCount}/${listComics.length} прочитано | ${readIssues}/${totalIssues} выпусков</div>
 						<div class="reading-list-card-actions" onclick="event.stopPropagation()">
 							<button class="action-btn edit-btn" onclick="showListModal('${listName}')" title="Редактировать">✏️</button>
 							<button class="action-btn delete-btn" onclick="deleteReadingList('${listName}')" title="Удалить">✕</button>
