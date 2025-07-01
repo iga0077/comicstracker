@@ -1547,11 +1547,6 @@
                 <input type="text" id="newListName" placeholder="Название нового списка чтения">
                 <button class="btn btn-primary" onclick="addReadingList()">Добавить список</button>
             </div>
-
-            <!-- Кнопка для сворачивания/разворачивания списка чтения на мобильных -->
-            <button class="reading-lists-toggle-btn mobile-top" id="readingListsToggleBtn" style="display:none;">
-                <span id="readingListsToggleIcon">☰</span> <span id="readingListsToggleText">Показать списки</span>
-            </button>
             
             <div class="reading-lists-grid-page" id="readingListsGrid"></div>
             <div id="readingListsContainer"></div>
@@ -1662,7 +1657,10 @@
         </div>
     </div>
 
-
+    <!-- Кнопка для сворачивания/разворачивания списка чтения на мобильных -->
+    <button class="reading-lists-toggle-btn mobile-top" id="readingListsToggleBtn" style="display:none;">
+        <span id="readingListsToggleIcon">☰</span> <span id="readingListsToggleText">Показать списки</span>
+    </button>
 
     <script>
         // Данные
@@ -3588,32 +3586,31 @@ function getSortedComicsForList(listName) {
         function createReadingListItem(comic, listName) {
             const isMobile = window.innerWidth <= 768;
             return `
-                <div class="reading-list-item ${comic.isRead ? 'read' : ''} ${isMobile && comic._mobileProgressExpanded ? 'mobile-progress-expanded' : ''}" data-comic-id="${comic.id}" data-list="${listName}" ${isMobile ? `ontouchstart="toggleMobileProgressBlocks(${comic.id})" onclick="toggleMobileProgressBlocks(${comic.id})"` : ''}>
+                <div class="reading-list-item ${comic.isRead ? 'read' : ''}" data-comic-id="${comic.id}" data-list="${listName}">
                     <div class="reading-list-comic-info">
                         ${comic.cover ? 
                             `<img src="${comic.cover}" alt="${comic.title}" class="reading-list-image">` :
                             '<div class="reading-list-image">📖</div>'
                         }
                         <div class="reading-list-text-info">
-                            <div class="reading-list-main-info">
+                            <div class="reading-list-main-info" style="display:flex; flex-direction:${isMobile ? 'column' : 'row'}; align-items:${isMobile ? 'flex-start' : 'center'}; gap:8px;">
                                 <div class="reading-list-title-text">${comic.title}</div>
                                 <div class="reading-list-years">${comic.years}</div>
+                                <div class="reading-list-content-text">${parseComicContent(comic.content)}</div>
                             </div>
                             <div class="reading-list-progress">
                                 <div class="reading-list-progress-blocks${isMobile && comic._mobileProgressExpanded ? ' mobile-expanded' : ''}">
                                     ${createProgressBlocks(comic)}
                                 </div>
                             </div>
-                            ${isMobile ? `<div class='reading-list-content-text'>${parseComicContent(comic.content)}</div>` : ''}
                         </div>
                         <div class="drag-handle">⋮⋮</div>
                     </div>
-                    ${!isMobile ? `<div class='reading-list-content-text'>${parseComicContent(comic.content)}</div>` : ''}
                     <div class="comic-actions">
                          <button class="action-btn bookmark-action-btn ${currentlyReading[listName] === comic.id ? 'active' : ''}" 
                             onclick="toggleCurrentlyReading(${comic.id}, '${listName}')" 
                             title="${currentlyReading[listName] === comic.id ? 'Снять закладку' : 'Отметить как читаемый'}">⭐</button>
-                          <button class="action-btn edit-btn" onclick="showComicModal(${JSON.stringify(comic).replace(/\"/g, '&quot;')})" title="Редактировать">✏️</button>
+                          <button class="action-btn edit-btn" onclick="showComicModal(${JSON.stringify(comic).replace(/"/g, '&quot;')})" title="Редактировать">✏️</button>
                          <button class="action-btn copy-btn" onclick="copyComic(${comic.id})" title="Копировать">📋</button>
                          <button class="action-btn read-btn" onclick="toggleReadStatus(${comic.id})" title="${comic.isRead ? 'Отметить как непрочитанный' : 'Отметить как прочитанный'}">${comic.isRead ? '📖' : '✅'}</button>
                          <button class="action-btn delete-btn" onclick="deleteComic(${comic.id})" title="Удалить">✕</button>
@@ -3631,6 +3628,12 @@ function getSortedComicsForList(listName) {
             const blockWidth = totalIssues <= 10 ? '40px' : 
                               totalIssues <= 20 ? '35px' : 
                               totalIssues <= 50 ? '30px' : '25px';
+            if (isMobile && !expanded) {
+                // Кнопка для раскрытия
+                blocks.push(`
+                    <button class="btn btn-secondary mobile-progress-toggle" style="margin:8px 0; font-size:15px; padding:10px 0; width:100%; display:block;" onclick="toggleMobileProgressBlocks(${comic.id})">Показать номера</button>
+                `);
+            }
             if (!isMobile || expanded) {
                 for (let i = 1; i <= totalIssues; i++) {
                     let blockClass = 'progress-block';
@@ -3655,11 +3658,14 @@ function getSortedComicsForList(listName) {
                         </div>
                     `);
                 }
+                if (isMobile) {
+                    blocks.push(`
+                        <button class="btn btn-secondary mobile-progress-toggle" style="margin:8px 0; font-size:15px; padding:10px 0; width:100%; display:block;" onclick="toggleMobileProgressBlocks(${comic.id})">Скрыть номера</button>
+                    `);
+                }
             }
             return blocks.join('');
         }
-
-        // --- МОДИФИКАЦИЯ toggleMobileProgressBlocks ---
         function toggleMobileProgressBlocks(comicId) {
             const comic = comicsData.find(c => c.id === comicId);
             if (comic) {
