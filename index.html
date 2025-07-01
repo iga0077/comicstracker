@@ -1135,79 +1135,133 @@
                 align-items: flex-start;
                 padding: 15px 20px;
             }
-
             .main-content {
                 padding: 15px;
                 margin-top: 155px;
             }
-
             .content-header {
                 flex-direction: column;
                 align-items: stretch;
             }
-
             .controls {
                 justify-content: center;
             }
-
             .comics-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                grid-template-columns: repeat(2, 1fr) !important;
                 gap: 15px;
             }
-
             .search-box, .sort-select {
                 width: 100%;
             }
-
             .reading-lists-grid {
                 grid-template-columns: 1fr;
             }
-
             .reading-lists-grid-page {
                 grid-template-columns: 1fr;
             }
-
             .reading-list-comic-info {
-                flex-direction: column;
-                gap: 15px;
+                flex-direction: row;
+                gap: 10px;
             }
-
             .reading-list-image {
+                width: 70px;
+                height: 110px;
+                align-self: flex-start;
+                border-radius: 8px;
+            }
+            .reading-list-title-text, .reading-list-years, .reading-list-content-text {
+                margin-bottom: 4px;
+            }
+            .reading-list-text-info {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            .reading-list-progress-blocks {
+                display: none;
+            }
+            .reading-list-progress-blocks.mobile-expanded {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 2px;
+                margin-bottom: 10px;
+            }
+            .reading-list-grid-view {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px;
+            }
+            .reading-list-grid-image {
+                height: 140px;
+                font-size: 32px;
+            }
+            .reading-list-mode-toggle, .reading-list-card-actions button[title^="Открыть как"] {
+                display: none !important;
+            }
+            .reading-list-card-meta {
+                font-size: 13px;
+            }
+            .reading-list-card {
+                padding: 12px;
+            }
+            .reading-list-card-title {
+                font-size: 15px;
+            }
+            .reading-list-content {
+                padding: 10px;
+            }
+            .reading-list-view-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .reading-list-view-controls h3 {
+                order: -1;
+                font-size: 18px;
+                margin-bottom: 0;
+            }
+            .reading-list-sort-toggle, .reading-list-view-toggle {
+                margin-bottom: 0;
+            }
+            .reading-list-view-controls .btn[title="Экспорт списка в TXT"] {
+                display: none !important;
+            }
+            .reading-list-list-item {
+                flex-direction: row;
+            }
+            .reading-list-content-text {
+                font-size: 13px;
+            }
+            .reading-list-progress {
+                margin-top: 4px;
+            }
+            .reading-list-card-actions {
+                gap: 2px;
+            }
+            .reading-list-card {
+                margin-bottom: 8px;
+            }
+            .reading-lists-toggle-btn {
+                display: flex !important;
+                align-items: center;
+                justify-content: flex-start;
+                background: rgba(71, 85, 105, 0.8);
+                border: 1px solid #475569;
+                border-radius: 10px;
+                padding: 8px 14px;
+                font-size: 16px;
+                color: #f1f5f9;
+                margin-bottom: 10px;
+                cursor: pointer;
                 width: 100%;
-                height: 180px;
-                align-self: center;
             }
-
-            .modal-content {
-                max-width: 95%;
-                padding: 20px;
+            .reading-lists-grid-page {
+                display: none;
             }
-
-            .reading-lists-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            .reading-lists-grid-page.mobile-visible {
+                display: grid;
+                margin-bottom: 10px;
             }
-			
-			.reading-list-view-controls .btn {
-				padding: 8px 12px;
-				font-size: 12px;
-				margin-right: 15px;
-			}
-			
-			.bookmark-action-btn {
-				background: linear-gradient(135deg, #64748b, #475569);
-				border: 2px solid #94a3b8;
-			}
-
-			.bookmark-action-btn.active {
-				background: linear-gradient(135deg, #f59e0b, #f97316);
-				border-color: #f59e0b;
-			}
-
-			.bookmark-action-btn:hover {
-				transform: scale(1.1);
-				box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
-			}
-			
         }
 
         @keyframes fadeIn {
@@ -1508,6 +1562,11 @@
             </form>
         </div>
     </div>
+
+    <!-- Кнопка для сворачивания/разворачивания списка чтения на мобильных -->
+    <button class="reading-lists-toggle-btn" id="readingListsToggleBtn" style="display:none;">
+        <span id="readingListsToggleIcon">☰</span> <span id="readingListsToggleText">Показать списки</span>
+    </button>
 
     <script>
         // Данные
@@ -3342,6 +3401,174 @@ function getSortedComicsForList(listName) {
             listSortModes[listName] = mode;
             saveData();
             renderReadingLists();
+        }
+
+        // --- MOBILE: СВЕРТЫВАНИЕ СПИСКОВ ---
+        let readingListsCollapsed = true;
+        function updateReadingListsMobileToggle() {
+            const isMobile = window.innerWidth <= 768;
+            const btn = document.getElementById('readingListsToggleBtn');
+            const grid = document.getElementById('readingListsGrid');
+            if (isMobile) {
+                btn.style.display = 'flex';
+                if (readingListsCollapsed) {
+                    grid.classList.remove('mobile-visible');
+                    document.getElementById('readingListsToggleIcon').textContent = '☰';
+                    document.getElementById('readingListsToggleText').textContent = 'Показать списки';
+                } else {
+                    grid.classList.add('mobile-visible');
+                    document.getElementById('readingListsToggleIcon').textContent = '▲';
+                    document.getElementById('readingListsToggleText').textContent = 'Скрыть списки';
+                }
+            } else {
+                btn.style.display = 'none';
+                grid.classList.remove('mobile-visible');
+            }
+        }
+        document.getElementById('readingListsToggleBtn').addEventListener('click', function() {
+            readingListsCollapsed = !readingListsCollapsed;
+            updateReadingListsMobileToggle();
+        });
+        window.addEventListener('resize', updateReadingListsMobileToggle);
+        document.addEventListener('DOMContentLoaded', updateReadingListsMobileToggle);
+
+        // --- MOBILE: ОТКЛЮЧЕНИЕ DOUBLE-РЕЖИМА ---
+        function enforceSingleListModeOnMobile() {
+            if (window.innerWidth <= 768) {
+                readingListsMode = 'single';
+                localStorage.setItem('marvel-reading-lists-mode', 'single');
+                document.getElementById('modeSingleBtn').classList.add('active');
+                document.getElementById('modeDoubleBtn').classList.remove('active');
+                // Скрыть глобальный переключатель вида
+                document.getElementById('globalReadingListToggle').style.display = 'none';
+            }
+        }
+        window.addEventListener('resize', enforceSingleListModeOnMobile);
+        document.addEventListener('DOMContentLoaded', enforceSingleListModeOnMobile);
+
+        // --- МОДИФИКАЦИЯ renderReadingListContent для мобильных ---
+        function renderSingleReadingListContent(listName, colIdx) {
+            if (!listName) return '';
+            const listComics = getSortedComicsForList(listName);
+            const viewMode = listViewModes[listName] || 'list';
+            const sortMode = listSortModes[listName] || 'years';
+            const isMobile = window.innerWidth <= 768;
+            return `
+                <div class="reading-list-content active" style="">
+                    <div class="reading-list-view-controls">
+                        <h3 style="color: #f1f5f9; margin: 0; flex: 1;">${listName}</h3>
+                        ${!isMobile ? `<button class="btn btn-secondary" onclick="exportReadingListToTxt('${listName}')" title="Экспорт списка в TXT">📄</button>` : ''}
+                        <div class="reading-list-sort-toggle">
+                            <button class="${sortMode === 'years' ? 'active' : ''}" onclick="setListSortMode('${listName}', 'years')">По годам</button>
+                            <button class="${sortMode === 'end' ? 'active' : ''}" onclick="setListSortMode('${listName}', 'end')">В конец</button>
+                        </div>
+                        <div class="reading-list-view-toggle">
+                            <button class="${viewMode === 'list' ? 'active' : ''}" onclick="toggleReadingListView('${listName}', 'list')">📋</button>
+                            <button class="${viewMode === 'grid' ? 'active' : ''}" onclick="toggleReadingListView('${listName}', 'grid')">🔲</button>
+                        </div>
+                    </div>
+                    ${listComics.length === 0 ? 
+                        '<div style="text-align: center; color: #94a3b8; padding: 40px;">Комиксов в списке нет</div>' :
+                        (viewMode === 'grid' ? 
+                            `<div class="reading-list-grid-view">${listComics.map((comic, index) => createReadingListGridItem(comic, listName, index)).join('')}</div>` :
+                            listComics.map(comic => createReadingListItem(comic, listName)).join('')
+                        )
+                    }
+                </div>
+            `;
+        }
+
+        // --- МОДИФИКАЦИЯ createReadingListItem для мобильных ---
+        function createReadingListItem(comic, listName) {
+            const isMobile = window.innerWidth <= 768;
+            return `
+                <div class="reading-list-item ${comic.isRead ? 'read' : ''}" data-comic-id="${comic.id}" data-list="${listName}">
+                    <div class="reading-list-comic-info">
+                        ${comic.cover ? 
+                            `<img src="${comic.cover}" alt="${comic.title}" class="reading-list-image">` :
+                            '<div class="reading-list-image">📖</div>'
+                        }
+                        <div class="reading-list-text-info">
+                            <div class="reading-list-main-info" style="display:flex; flex-direction:${isMobile ? 'column' : 'row'}; align-items:${isMobile ? 'flex-start' : 'center'}; gap:8px;">
+                                <div class="reading-list-title-text">${comic.title}</div>
+                                <div class="reading-list-years">${comic.years}</div>
+                                <div class="reading-list-content-text">${parseComicContent(comic.content)}</div>
+                            </div>
+                            <div class="reading-list-progress">
+                                <div class="reading-list-progress-blocks${isMobile && comic._mobileProgressExpanded ? ' mobile-expanded' : ''}">
+                                    ${createProgressBlocks(comic)}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="drag-handle">⋮⋮</div>
+                    </div>
+                    <div class="comic-actions">
+                         <button class="action-btn bookmark-action-btn ${currentlyReading[listName] === comic.id ? 'active' : ''}" 
+                            onclick="toggleCurrentlyReading(${comic.id}, '${listName}')" 
+                            title="${currentlyReading[listName] === comic.id ? 'Снять закладку' : 'Отметить как читаемый'}">⭐</button>
+                          <button class="action-btn edit-btn" onclick="showComicModal(${JSON.stringify(comic).replace(/"/g, '&quot;')})" title="Редактировать">✏️</button>
+                         <button class="action-btn copy-btn" onclick="copyComic(${comic.id})" title="Копировать">📋</button>
+                         <button class="action-btn read-btn" onclick="toggleReadStatus(${comic.id})" title="${comic.isRead ? 'Отметить как непрочитанный' : 'Отметить как прочитанный'}">${comic.isRead ? '📖' : '✅'}</button>
+                         <button class="action-btn delete-btn" onclick="deleteComic(${comic.id})" title="Удалить">✕</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- МОДИФИКАЦИЯ createProgressBlocks для мобильных ---
+        function createProgressBlocks(comic) {
+            const blocks = [];
+            const totalIssues = Math.min(comic.totalIssues, 100);
+            const isMobile = window.innerWidth <= 768;
+            const expanded = comic._mobileProgressExpanded;
+            const blockWidth = totalIssues <= 10 ? '40px' : 
+                              totalIssues <= 20 ? '35px' : 
+                              totalIssues <= 50 ? '30px' : '25px';
+            if (isMobile && !expanded) {
+                // Кнопка для раскрытия
+                blocks.push(`
+                    <button class="btn btn-secondary" style="margin-bottom:6px; font-size:12px; padding:4px 10px;" onclick="toggleMobileProgressBlocks(${comic.id})">Показать номера</button>
+                `);
+            }
+            if (!isMobile || expanded) {
+                for (let i = 1; i <= totalIssues; i++) {
+                    let blockClass = 'progress-block';
+                    if (i <= comic.readIssues) {
+                        blockClass += ' read';
+                    }
+                    blocks.push(`
+                        <div class="${blockClass}" 
+                             data-comic-id="${comic.id}" 
+                             data-issue="${i}"
+                             onclick="updateComicProgressFromBlock(${comic.id}, ${i})"
+                             title="Выпуск ${i}"
+                             style="width: ${blockWidth};">
+                            ${i}
+                        </div>
+                    `);
+                }
+                if (comic.totalIssues > 100) {
+                    blocks.push(`
+                        <div class="progress-block" style="background: rgba(100, 116, 139, 0.5); cursor: default; width: ${blockWidth};" title="Всего выпусков: ${comic.totalIssues}">
+                            +${comic.totalIssues - 100}
+                        </div>
+                    `);
+                }
+                if (isMobile) {
+                    blocks.push(`
+                        <button class="btn btn-secondary" style="margin-top:6px; font-size:12px; padding:4px 10px;" onclick="toggleMobileProgressBlocks(${comic.id})">Скрыть номера</button>
+                    `);
+                }
+            }
+            return blocks.join('');
+        }
+        function toggleMobileProgressBlocks(comicId) {
+            const comic = comicsData.find(c => c.id === comicId);
+            if (comic) {
+                comic._mobileProgressExpanded = !comic._mobileProgressExpanded;
+                renderCollection();
+                renderReadingListContent();
+            }
         }
     </script>
 </body>
