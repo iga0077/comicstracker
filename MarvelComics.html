@@ -1,0 +1,3224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🕷️ Marvel Comics Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 25%, #1e293b 75%, #475569 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            line-height: 1.3;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid #f59e0b;
+            padding: 10px 20px;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tabs {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            right: 0;
+            background: rgba(51, 65, 85, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid #475569;
+            padding: 0 20px;
+            z-index: 999;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 2px;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .tab-button {
+            padding: 15px 25px;
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tab-button:hover {
+            color: #f1f5f9;
+            background: rgba(71, 85, 105, 0.5);
+        }
+
+        .tab-button.active {
+            color: #f59e0b;
+            border-bottom-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .tab-indicator {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: #f59e0b;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 2px 2px 0 0;
+        }
+
+        .main-content {
+            margin-top: 124px;
+            padding: 20px;
+            min-height: calc(100vh - 135px);
+            position: relative;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #475569, #334155);
+            color: white;
+            border: 1px solid #64748b;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #64748b, #475569);
+            transform: translateY(-2px);
+        }
+
+        .search-box, .sort-select {
+            background: rgba(51, 65, 85, 0.8);
+            border: 2px solid #64748b;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #e2e8f0;
+            font-size: 14px;
+            width: 250px;
+            transition: all 0.3s ease;
+            appearance: none;
+        }
+
+        .sort-select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .search-box:focus, .sort-select:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        .view-toggle {
+            display: flex;
+            background: rgba(71, 85, 105, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .view-toggle button {
+            padding: 10px 15px;
+            border: none;
+            background: transparent;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-toggle button.active {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .comics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .comics-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .comic-card {
+            background: rgba(51, 65, 85, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #475569;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .comic-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            border-color: #94a3b8;
+        }
+
+        .comic-image {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #475569, #64748b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e1;
+            font-size: 48px;
+            position: relative;
+        }
+
+        .comic-info {
+            padding: 15px;
+        }
+
+        .comic-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+        }
+
+        .comic-content {
+            font-size: 12px;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .comic-years {
+            font-size: 12px;
+            font-weight: 600;
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 4px 8px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .progress-indicator {
+            margin-top: 10px;
+            background: rgba(71, 85, 105, 0.8);
+            border-radius: 8px;
+            padding: 8px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(100, 116, 139, 0.5);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .progress-bar:hover {
+            height: 12px;
+            margin-bottom: 2px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 11px;
+            color: #cbd5e1;
+            text-align: center;
+        }
+
+        .comic-list-item {
+            background: rgba(51, 65, 85, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #475569;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+        }
+
+        .comic-list-item:hover {
+            background: rgba(71, 85, 105, 0.8);
+            border-color: #94a3b8;
+            transform: translateY(-2px);
+        }
+
+        .comic-list-image {
+            width: 80px;
+            height: 120px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #475569, #64748b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e1;
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+
+        .comic-list-info {
+            flex: 1;
+        }
+
+        .reading-list-item {
+            background: rgba(51, 65, 85, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #475569;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: grab;
+        }
+
+        .reading-list-item:hover {
+            border-color: #94a3b8;
+            transform: translateX(5px);
+        }
+
+        .reading-list-item.read {
+            opacity: 0.6;
+            background: rgba(34, 197, 94, 0.1);
+            border-color: #22c55e;
+        }
+
+        .reading-list-item.dragging {
+            opacity: 0.5;
+            transform: rotate(3deg) scale(1.02);
+            z-index: 1000;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .reading-list-image {
+            width: 90px;
+            height: 130px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #475569, #64748b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e1;
+            font-size: 36px;
+            flex-shrink: 0;
+        }
+
+        .reading-list-comic-info {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .reading-list-text-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .reading-list-main-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .reading-list-title-text {
+            font-weight: 700;
+            color: #f1f5f9;
+            font-size: 18px;
+            background: rgba(71, 85, 105, 0.6);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #64748b;
+        }
+
+        .reading-list-content-text {
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.4;
+            background: rgba(71, 85, 105, 0.6);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #64748b;
+        }
+
+        .reading-list-years {
+            font-size: 14px;
+            font-weight: 600;
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #f59e0b;
+            display: inline-block;
+        }
+
+        .reading-list-progress {
+            margin-top: 8px;
+        }
+
+        .reading-list-progress-blocks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            margin-bottom: 10px;
+        }
+
+        .progress-block {
+            min-width: 32px;
+            height: 32px;
+            border: 1px solid #64748b;
+            border-radius: 6px;
+            background: rgba(100, 116, 139, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            padding: 0 6px;
+            flex-shrink: 0;
+        }
+
+        .progress-block:hover {
+            border-color: #94a3b8;
+            background: rgba(148, 163, 184, 0.2);
+            transform: scale(1.05);
+        }
+
+        .progress-block.read {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border-color: #22c55e;
+            color: white;
+        }
+
+        .reading-list-progress-text {
+            font-size: 12px;
+            color: #cbd5e1;
+            text-align: left;
+        }
+
+        .reading-list-grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .reading-list-grid-item {
+            background: rgba(51, 65, 85, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #475569;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: grab;
+        }
+
+        .reading-list-grid-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .reading-list-grid-item.dragging {
+            opacity: 0.6;
+            transform: rotate(5deg) scale(1.05);
+            z-index: 1000;
+        }
+
+        .reading-list-grid-image {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #475569, #64748b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e1;
+            font-size: 48px;
+        }
+
+        .reading-list-grid-info {
+            padding: 15px;
+        }
+
+        .reading-list-grid-title {
+            font-weight: 700;
+            color: #f1f5f9;
+            font-size: 14px;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .reading-list-grid-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .reading-list-grid-years {
+            font-size: 12px;
+            font-weight: 600;
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #f59e0b;
+        }
+
+        .reading-list-grid-content {
+            font-size: 12px;
+            color: #cbd5e1;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .reading-list-grid-progress {
+            margin-top: 10px;
+        }
+
+        .reading-list-grid-progress .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(100, 116, 139, 0.5);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reading-list-grid-progress .progress-bar:hover {
+            height: 8px;
+        }
+
+        .reading-list-grid-progress .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .reading-list-grid-progress .progress-text {
+            font-size: 11px;
+            color: #cbd5e1;
+            text-align: center;
+        }
+
+        .reading-list-order-arrow {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(245, 158, 11, 0.9);
+            color: black;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .reading-list-view-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .reading-list-view-toggle {
+            display: flex;
+            background: rgba(71, 85, 105, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .reading-list-view-toggle button {
+            padding: 10px 15px;
+            border: none;
+            background: transparent;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reading-list-view-toggle button.active {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .comic-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .comic-card:hover .comic-actions,
+		.comic-list-item:hover .comic-actions,
+		.reading-list-item:hover .comic-actions,
+		.reading-list-grid-item:hover .comic-actions {
+			opacity: 1;
+		}
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .edit-btn {
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .read-btn {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+        }
+		
+		.copy-btn {
+			background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+		}
+
+        .action-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1100;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(51, 65, 85, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #64748b;
+            max-width: 1000px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .modal h3 {
+            margin-bottom: 25px;
+            color: #f59e0b;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            background: rgba(71, 85, 105, 0.8);
+            border: 2px solid #64748b;
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: #f1f5f9;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        .reading-lists-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .reading-list-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(71, 85, 105, 0.6);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #64748b;
+            transition: all 0.3s ease;
+        }
+
+        .reading-list-checkbox:hover {
+            border-color: #94a3b8;
+        }
+
+        .reading-list-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            appearance: none;
+            background: rgba(71, 85, 105, 0.8);
+            border: 2px solid #64748b;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .reading-list-checkbox input[type="checkbox"]:checked {
+            background: #f59e0b;
+            border-color: #f59e0b;
+        }
+
+        .reading-list-checkbox input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .progress-slider-group {
+            margin-top: 15px;
+        }
+
+        .progress-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(100, 116, 139, 0.5);
+            outline: none;
+            margin: 10px 0;
+        }
+
+        .progress-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.4);
+        }
+
+        .progress-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.4);
+        }
+
+        .progress-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .progress-inputs input {
+            width: 80px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #94a3b8;
+            background: rgba(51, 65, 85, 0.4);
+            border-radius: 20px;
+            border: 2px dashed #64748b;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #cbd5e1;
+        }
+
+        .reading-lists-grid-page {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .reading-list-card {
+            background: rgba(51, 65, 85, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #475569;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .reading-list-card:hover {
+            border-color: #94a3b8;
+            transform: translateY(-2px);
+        }
+
+        .reading-list-card.active {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+		
+		.reading-list-card.dragging {
+			opacity: 0.5;
+			transform: rotate(2deg) scale(1.02);
+			z-index: 1000;
+			box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+		}
+
+		.reading-list-card.drag-over {
+			border-color: #f59e0b !important;
+			background: rgba(245, 158, 11, 0.2) !important;
+			transform: translateY(-4px) !important;
+		}
+
+        .reading-list-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+        }
+
+        .reading-list-card-meta {
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+
+        .reading-list-card-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .reading-list-card:hover .reading-list-card-actions {
+            opacity: 1;
+        }
+
+        .expand-icon {
+            transition: transform 0.3s ease;
+            color: #cbd5e1;
+        }
+
+        .reading-list-card.active .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .reading-list-content {
+            display: none;
+            border: 1px solid #475569;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: rgba(30, 41, 59, 0.5);
+            min-height: 150px;
+        }
+
+        .reading-list-content.active {
+            display: block;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(51, 65, 85, 0.8);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #475569;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: #94a3b8;
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        .list-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .list-input-group input {
+            flex: 1;
+            max-width: 400px;
+            background: rgba(71, 85, 105, 0.8);
+            border: 2px solid #64748b;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #f1f5f9;
+        }
+
+        .list-input-group input:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        .drag-over {
+            border-color: #f59e0b !important;
+            background: rgba(245, 158, 11, 0.1) !important;
+        }
+
+        .scroll-buttons {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-buttons.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .add-comic-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 90px;
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            color: white;
+            cursor: pointer;
+            font-size: 28px;
+            font-weight: 300;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-comic-btn:hover {
+            transform: translateY(-2px) scale(1.1);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+
+        .scroll-btn {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scroll-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .drag-handle {
+            color: #94a3b8;
+            font-size: 18px;
+            cursor: grab;
+            padding: 10px;
+            align-self: flex-start;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+                padding: 15px 20px;
+            }
+
+            .main-content {
+                padding: 15px;
+                margin-top: 155px;
+            }
+
+            .content-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls {
+                justify-content: center;
+            }
+
+            .comics-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 15px;
+            }
+
+            .search-box, .sort-select {
+                width: 100%;
+            }
+
+            .reading-lists-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .reading-lists-grid-page {
+                grid-template-columns: 1fr;
+            }
+
+            .reading-list-comic-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .reading-list-image {
+                width: 100%;
+                height: 180px;
+                align-self: center;
+            }
+
+            .modal-content {
+                max-width: 95%;
+                padding: 20px;
+            }
+
+            .reading-lists-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+			
+			.reading-list-view-controls .btn {
+				padding: 8px 12px;
+				font-size: 12px;
+				margin-right: 15px;
+			}
+			
+			.bookmark-action-btn {
+				background: linear-gradient(135deg, #64748b, #475569);
+				border: 2px solid #94a3b8;
+			}
+
+			.bookmark-action-btn.active {
+				background: linear-gradient(135deg, #f59e0b, #f97316);
+				border-color: #f59e0b;
+			}
+
+			.bookmark-action-btn:hover {
+				transform: scale(1.1);
+				box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+			}
+			
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Стили для ссылок в содержании комиксов */
+        .comic-content a,
+        .reading-list-content-text a,
+        .reading-list-grid-content a {
+            color: #87CEEB; /* бледно-голубой */
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .comic-content a:hover,
+        .reading-list-content-text a:hover,
+        .reading-list-grid-content a:hover {
+            color: #B0E0E6; /* более светлый голубой при наведении */
+            text-decoration: underline;
+        }
+
+        /* --- Стилизация полос прокрутки для режима двух списков --- */
+        .reading-list-double-col {
+            scrollbar-width: thin;
+            scrollbar-color: #64748b #1e293b;
+        }
+        .reading-list-double-col::-webkit-scrollbar {
+            width: 8px;
+            background: #1e293b;
+            border-radius: 8px;
+        }
+        .reading-list-double-col::-webkit-scrollbar-thumb {
+            background: #64748b;
+            border-radius: 8px;
+            min-height: 40px;
+        }
+        .reading-list-double-col::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* --- Убрать любую рамку/обводку у открытых списков в режиме двух списков --- */
+        .reading-list-content[style*="border"] {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        /* --- Стилизация переключателя 1/2 как у переключателя вида --- */
+        .reading-list-mode-toggle {
+            display: flex;
+            background: rgba(71, 85, 105, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            height: 37px;
+            margin-right: 0;
+        }
+        .reading-list-mode-toggle button {
+            padding: 10px 15px;
+            border: none;
+            background: transparent;
+            color: #cbd5e1;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 0;
+            height: 37px;
+            width: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .reading-list-mode-toggle button.active {
+            background: #f59e0b;
+            color: white;
+        }
+        .reading-list-mode-toggle button:first-child {
+            border-radius: 12px 0 0 12px;
+        }
+        .reading-list-mode-toggle button:last-child {
+            border-radius: 0 12px 12px 0;
+        }
+        .reading-list-mode-toggle button:not(:last-child) {
+            border-right: 1px solid #475569;
+        }
+        .reading-list-sort-toggle button.active {
+            background: #f59e0b;
+            color: white;
+        }
+
+        /* --- Стилизация переключателя сортировки в списке --- */
+        .reading-list-sort-toggle {
+            display: flex;
+            background: rgba(71, 85, 105, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            height: 38px;
+            margin: 0 10px;
+        }
+        .reading-list-sort-toggle button {
+            padding: 10px 15px;
+            border: none;
+            background: transparent;
+            color: #cbd5e1;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 0;
+            height: 38px;
+            width: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .reading-list-sort-toggle button.active {
+            background: #f59e0b;
+            color: white;
+        }
+        .reading-list-sort-toggle button:first-child {
+            border-radius: 12px 0 0 12px;
+        }
+        .reading-list-sort-toggle button:last-child {
+            border-radius: 0 12px 12px 0;
+        }
+        .reading-list-sort-toggle button:not(:last-child) {
+            border-right: 1px solid #475569;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🕷️ Marvel Comics Tracker</h1>
+        <div class="header-right">
+            <button class="btn btn-secondary" onclick="exportData()" title="Экспорт данных">📤</button>
+            <button class="btn btn-secondary" onclick="importData()" title="Импорт данных">📥</button>
+        </div>
+        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImport(event)">
+    </div>
+
+    <div class="tabs">
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="switchTab('reading-lists')">📖 Списки чтения</button>
+            <button class="tab-button" onclick="switchTab('collection')">📚 Коллекция</button>
+            <div class="tab-indicator"></div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Списки чтения -->
+        <div id="reading-lists" class="tab-content active">
+            <div class="content-header">
+                <h2 style="color: #f1f5f9; font-size: 24px; margin: 0;">Списки чтения</h2>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="reading-list-mode-toggle" id="readingListModeToggle" style="display: flex;">
+                        <button id="modeSingleBtn" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; border-radius: 8px 0 0 8px;" onclick="setReadingListsMode('single')">1</button>
+                        <button id="modeDoubleBtn" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; border-radius: 0 8px 8px 0;" onclick="setReadingListsMode('double')">2</button>
+                    </div>
+                    <div class="reading-list-view-toggle" id="globalReadingListToggle" style="display: none;">
+                        <button class="active" onclick="toggleAllReadingListViews('list')">📋</button>
+                        <button onclick="toggleAllReadingListViews('grid')">🔲</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="list-input-group">
+                <input type="text" id="newListName" placeholder="Название нового списка чтения">
+                <button class="btn btn-primary" onclick="addReadingList()">Добавить список</button>
+            </div>
+            
+            <div class="reading-lists-grid-page" id="readingListsGrid"></div>
+            <div id="readingListsContainer"></div>
+        </div>
+
+        <!-- Коллекция -->
+        <div id="collection" class="tab-content">
+            <div class="content-header">
+                <div class="controls">
+                    <div class="view-toggle">
+                        <button class="active" onclick="toggleView('collection', 'list')">📋</button>
+                        <button onclick="toggleView('collection', 'grid')">🔲</button>
+                    </div>
+                    <input type="text" class="search-box" placeholder="Поиск комиксов..." oninput="filterComics()">
+                    <select class="sort-select" onchange="sortComics()">
+                        <option value="dateAdded">По дате добавления</option>
+                        <option value="title">По названию</option>
+                        <option value="years">По годам выхода</option>
+                        <option value="progress">По прогрессу чтения</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="stats" id="collectionStats"></div>
+            
+            <div id="collectionComics"></div>
+        </div>
+    </div>
+
+    <!-- Кнопка добавления комикса -->
+    <button class="add-comic-btn" onclick="showComicModal()" title="Добавить комикс">+</button>
+
+    <!-- Кнопки навигации -->
+    <div class="scroll-buttons">
+        <button class="scroll-btn" onclick="scrollToTop()" title="Наверх">↑</button>
+        <button class="scroll-btn" onclick="scrollToBottom()" title="Вниз">↓</button>
+    </div>
+
+    <!-- Модальное окно для комикса -->
+    <div class="modal" id="comicModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Добавить комикс</h3>
+            <form id="comicForm">
+                <div class="form-group">
+                    <label for="comicTitle">Название комикса *</label>
+                    <input type="text" id="comicTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="comicCover">Ссылка на обложку</label>
+                    <input type="url" id="comicCover">
+                </div>
+                
+                <div class="form-group">
+                    <label for="comicContent">Содержание (серии и номера выпусков) *</label>
+                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+                        <button type="button" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;" onclick="wrapSelection('comicContent', '**', '**')" title="Жирный (Ctrl+B)"><b>Жирный</b></button>
+                        <button type="button" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; opacity:0.7;" onclick="wrapSelection('comicContent', '~~', '~~')" title="Полупрозрачный (Ctrl+T)">Полупрозрачный</button>
+                    </div>
+                    <textarea id="comicContent" rows="3" placeholder="Например: Amazing Spider-Man #100-125, Spectacular Spider-Man #50-52" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="comicYears">Период выхода (годы) *</label>
+                    <input type="text" id="comicYears" placeholder="Например: 1985-1987" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Списки чтения</label>
+                    <div class="reading-lists-grid" id="readingListsSelection"></div>
+                </div>
+                
+                <div class="form-group progress-slider-group">
+                    <label for="progressSlider">Прогресс чтения</label>
+                    <input type="range" id="progressSlider" class="progress-slider" min="0" max="100" value="0" oninput="updateProgressInputs()">
+                    <div class="progress-inputs">
+                        <label>Прочитано:</label>
+                        <input type="number" id="readIssues" min="0" value="0" onchange="updateProgressSlider()">
+                        <label>из</label>
+                        <input type="number" id="totalIssues" min="1" value="1" onchange="updateProgressSlider()">
+                        <label>выпусков</label>
+                    </div>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="hideComicModal()">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно для редактирования списка -->
+    <div class="modal" id="listModal">
+        <div class="modal-content">
+            <h3 id="listModalTitle">Редактировать список</h3>
+            <form id="listForm">
+                <div class="form-group">
+                    <label for="listName">Название списка *</label>
+                    <input type="text" id="listName" required>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="hideListModal()">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Данные
+        let comicsData = JSON.parse(localStorage.getItem('marvel-comics-data') || '[]');
+        let readingLists = JSON.parse(localStorage.getItem('marvel-reading-lists') || JSON.stringify([
+            'Современный Marvel',
+            'Веном',
+            'Человек-паук',
+            'Люди-Икс',
+            'Каратель',
+            'Лунный Рыцарь',
+            'Чёрная вдова',
+            'Сорвиголова',
+            'Халк',
+            'Тор',
+            'Железный Человек',
+            'Мстители',
+            'Фантастическая Четвёрка',
+            'Доктор Стэндж',
+            'Капитан Америка',
+            'Зимний солдат',
+            'Дэдпул'
+        ]));
+        
+        // Сохраняем порядок комиксов в списках чтения
+        let listOrders = JSON.parse(localStorage.getItem('marvel-list-orders') || '{}');
+        
+        // Сохраняем режимы просмотра для списков чтения
+        let listViewModes = JSON.parse(localStorage.getItem('marvel-list-view-modes') || '{}');
+        
+        let appSettings = JSON.parse(localStorage.getItem('marvel-app-settings') || '{}');
+        let currentTab = 'reading-lists';
+        let currentView = appSettings.view || 'list';
+        let currentSort = appSettings.sort || 'dateAdded';
+        let editingComic = null;
+        let editingList = null;
+        let expandedLists = new Set();
+		
+		// Сохраняем закладки для каждого списка чтения (ID комикса, который сейчас читается)
+		let currentlyReading = JSON.parse(localStorage.getItem('marvel-currently-reading') || '{}');
+
+        let readingListsMode = localStorage.getItem('marvel-reading-lists-mode') || 'double';
+        let openedLists = JSON.parse(localStorage.getItem('marvel-opened-lists') || 'null');
+        if (!openedLists || !Array.isArray(openedLists)) {
+            openedLists = readingLists.slice(0, 2);
+        }
+
+        // Сохраняем режим сортировки для каждого списка
+        let listSortModes = JSON.parse(localStorage.getItem('marvel-list-sort-modes') || '{}');
+
+        // Сохранение данных
+        function saveData() {
+            localStorage.setItem('marvel-comics-data', JSON.stringify(comicsData));
+            localStorage.setItem('marvel-reading-lists', JSON.stringify(readingLists));
+            localStorage.setItem('marvel-list-orders', JSON.stringify(listOrders));
+            localStorage.setItem('marvel-list-view-modes', JSON.stringify(listViewModes));
+            appSettings.view = currentView;
+            appSettings.sort = currentSort;
+            localStorage.setItem('marvel-app-settings', JSON.stringify(appSettings));
+			localStorage.setItem('marvel-currently-reading', JSON.stringify(currentlyReading));
+            localStorage.setItem('marvel-list-sort-modes', JSON.stringify(listSortModes));
+        }
+
+        // Переключение вида списка чтения
+        function toggleReadingListView(listName, view) {
+            listViewModes[listName] = view;
+            saveData();
+            renderReadingListContent();
+        }
+
+        // Глобальное переключение вида всех списков чтения
+        function toggleAllReadingListViews(view) {
+            expandedLists.forEach(listName => {
+                listViewModes[listName] = view;
+            });
+            saveData();
+            renderReadingListContent();
+            
+            // Обновляем кнопки глобального переключателя
+            const toggleButtons = document.querySelectorAll('#globalReadingListToggle button');
+            toggleButtons.forEach(btn => btn.classList.remove('active'));
+            if (view === 'list') {
+                toggleButtons[0].classList.add('active');
+            } else {
+                toggleButtons[1].classList.add('active');
+            }
+        }
+
+        // Навигация
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function scrollToBottom() {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        // Обновление индикатора вкладок
+        function updateTabIndicator() {
+            const activeTab = document.querySelector('.tab-button.active');
+            const indicator = document.querySelector('.tab-indicator');
+            
+            if (activeTab && indicator) {
+                const rect = activeTab.getBoundingClientRect();
+                const containerRect = activeTab.parentElement.getBoundingClientRect();
+                
+                indicator.style.width = rect.width + 'px';
+                indicator.style.left = (rect.left - containerRect.left) + 'px';
+            }
+        }
+
+        // Переключение вкладок
+        function switchTab(tab) {
+            if (currentTab === tab) return;
+            
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            const tabs = ['reading-lists', 'collection'];
+            document.querySelectorAll('.tab-button').forEach((btn, index) => {
+                if (tabs[index] === tab) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            document.getElementById(tab).classList.add('active');
+            
+            currentTab = tab;
+            updateTabIndicator();
+            
+            if (tab === 'collection') {
+                renderCollection();
+            } else if (tab === 'reading-lists') {
+                renderReadingLists();
+            }
+        }
+
+        // Переключение вида
+        function toggleView(tab, view) {
+            const viewButtons = document.querySelector(`#${tab} .view-toggle`).children;
+            Array.from(viewButtons).forEach(btn => btn.classList.remove('active'));
+            
+            if (view === 'list') {
+                viewButtons[0].classList.add('active');
+            } else {
+                viewButtons[1].classList.add('active');
+            }
+            
+            currentView = view;
+            saveData();
+            renderCollection();
+        }
+
+        // Переключение списка чтения
+		function toggleReadingList(listName) {
+			if (readingListsMode === 'double') {
+				// В double-режиме ничего не делаем по клику (только через кнопки 1/2)
+				return;
+			}
+			if (expandedLists.has(listName)) {
+				expandedLists.delete(listName);
+			} else {
+				expandedLists.clear();
+				expandedLists.add(listName);
+				setTimeout(() => {
+					scrollToCurrentlyReading(listName);
+				}, 100);
+			}
+			renderReadingLists();
+		}
+
+        // Автоматическое определение количества выпусков
+        function parseIssuesCount(content) {
+            if (!content) return 1;
+            
+            let totalIssues = 0;
+            const ranges = content.match(/#\d+(-\d+)?/g) || [];
+            
+            ranges.forEach(range => {
+                const numbers = range.replace('#', '').split('-');
+                if (numbers.length === 2) {
+                    const start = parseInt(numbers[0]);
+                    const end = parseInt(numbers[1]);
+                    totalIssues += Math.abs(end - start) + 1;
+                } else {
+                    totalIssues += 1;
+                }
+            });
+            
+            return Math.max(totalIssues, 1);
+        }
+
+        // Обновление слайдера прогресса
+        function updateProgressSlider() {
+            const readIssues = parseInt(document.getElementById('readIssues').value) || 0;
+            const totalIssues = parseInt(document.getElementById('totalIssues').value) || 1;
+            const percentage = Math.min((readIssues / totalIssues) * 100, 100);
+            document.getElementById('progressSlider').value = percentage;
+        }
+
+        // Обновление полей ввода прогресса
+        function updateProgressInputs() {
+            const percentage = parseInt(document.getElementById('progressSlider').value);
+            const totalIssues = parseInt(document.getElementById('totalIssues').value) || 1;
+            const readIssues = Math.round((percentage / 100) * totalIssues);
+            document.getElementById('readIssues').value = readIssues;
+        }
+
+        // Интерактивный прогресс-бар в списках
+        function updateComicProgress(comicId, newProgress) {
+            const comic = comicsData.find(c => c.id === comicId);
+            if (comic) {
+                const newReadIssues = Math.round((newProgress / 100) * comic.totalIssues);
+                comic.readIssues = newReadIssues;
+                comic.isRead = newReadIssues >= comic.totalIssues;
+                saveData();
+                renderCollection();
+                renderReadingListContent();
+            }
+        }
+
+        // Показать модальное окно комикса
+        function showComicModal(comic = null) {
+            editingComic = comic;
+            const modal = document.getElementById('comicModal');
+            const title = document.getElementById('modalTitle');
+            const form = document.getElementById('comicForm');
+            
+            form.reset();
+            
+            // Заполнение списков чтения
+            const listsContainer = document.getElementById('readingListsSelection');
+            listsContainer.innerHTML = readingLists.map(list => `
+                <div class="reading-list-checkbox">
+                    <input type="checkbox" id="list-${list}" value="${list}">
+                    <label for="list-${list}">${list}</label>
+                </div>
+            `).join('');
+            
+            if (comic) {
+                title.textContent = 'Редактировать комикс';
+                document.getElementById('comicTitle').value = comic.title || '';
+                document.getElementById('comicCover').value = comic.cover || '';
+                document.getElementById('comicContent').value = comic.content || '';
+                document.getElementById('comicYears').value = comic.years || '';
+                document.getElementById('readIssues').value = comic.readIssues || 0;
+                document.getElementById('totalIssues').value = comic.totalIssues || 1;
+                
+                // Отметить выбранные списки
+                if (comic.readingLists && comic.readingLists.length > 0) {
+                    comic.readingLists.forEach(list => {
+                        const checkbox = document.getElementById(`list-${list}`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                }
+                
+                updateProgressSlider();
+            } else {
+                title.textContent = 'Добавить комикс';
+                document.getElementById('readIssues').value = 0;
+                document.getElementById('totalIssues').value = 1;
+                document.getElementById('progressSlider').value = 0;
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        // Скрыть модальное окно комикса
+        function hideComicModal() {
+            document.getElementById('comicModal').style.display = 'none';
+            editingComic = null;
+        }
+
+        // Автоматическое обновление количества выпусков при изменении содержания
+        document.getElementById('comicContent').addEventListener('input', function() {
+            if (!editingComic) {
+                const totalIssues = parseIssuesCount(this.value);
+                document.getElementById('totalIssues').value = totalIssues;
+                updateProgressSlider();
+            }
+        });
+
+        // Обработка формы комикса
+        document.getElementById('comicForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const selectedLists = Array.from(document.querySelectorAll('#readingListsSelection input:checked')).map(cb => cb.value);
+            
+            const formData = {
+                id: editingComic ? editingComic.id : Date.now(),
+                title: document.getElementById('comicTitle').value.trim(),
+                cover: document.getElementById('comicCover').value.trim(),
+                content: document.getElementById('comicContent').value.trim(),
+                years: document.getElementById('comicYears').value.trim(),
+                readingLists: selectedLists,
+                readIssues: parseInt(document.getElementById('readIssues').value) || 0,
+                totalIssues: parseInt(document.getElementById('totalIssues').value) || 1,
+                dateAdded: editingComic ? editingComic.dateAdded : new Date().toISOString(),
+                isRead: false
+            };
+
+            formData.isRead = formData.readIssues >= formData.totalIssues;
+
+            if (editingComic) {
+                const index = comicsData.findIndex(c => c.id === editingComic.id);
+                if (index !== -1) {
+                    const oldLists = editingComic.readingLists || [];
+                    const newLists = selectedLists;
+                    
+                    oldLists.forEach(listName => {
+                        if (!newLists.includes(listName) && listOrders[listName]) {
+                            listOrders[listName] = listOrders[listName].filter(id => id !== editingComic.id);
+                        }
+                    });
+                    
+                    newLists.forEach(listName => {
+						if (!oldLists.includes(listName)) {
+							if (!listOrders[listName]) {
+								listOrders[listName] = [];
+							}
+							if (!listOrders[listName].includes(editingComic.id)) {
+								// Для добавления в новый список при редактировании
+								const newYear = parseInt(formData.years.split('-')[0]) || 0;
+								console.log('Добавляем отредактированный комикс', formData.title, 'в новый список', listName, 'год:', newYear);
+								// Получаем существующие комиксы в списке (НЕ исключаем текущий, так как его там еще нет)
+								const existingComics = comicsData.filter(comic => 
+									comic.readingLists && comic.readingLists.includes(listName)
+								);
+								const tempOrdered = [];
+								let inserted = false;
+								// Если режим "В конец" — просто в конец
+								if (listSortModes[listName] === 'end') {
+									listOrders[listName].push(editingComic.id);
+									inserted = true;
+								}
+								listOrders[listName].forEach(id => {
+									const comic = existingComics.find(c => c.id === id);
+									if (comic) {
+										const existingYear = parseInt(comic.years.split('-')[0]) || 0;
+										if (!inserted && newYear < existingYear) {
+											tempOrdered.push(editingComic.id);
+											inserted = true;
+											console.log('Вставили отредактированный комикс перед', comic.title);
+										}
+										tempOrdered.push(id);
+									}
+								});
+								if (!inserted && listSortModes[listName] !== 'end') {
+									tempOrdered.push(editingComic.id);
+									console.log('Добавили отредактированный комикс в конец списка');
+								}
+								if (listSortModes[listName] !== 'end') listOrders[listName] = tempOrdered;
+							}
+						}
+					});
+                    comicsData[index] = formData;
+                }
+            } else {
+                comicsData.push(formData);
+                
+                selectedLists.forEach(listName => {
+					if (!listOrders[listName]) {
+						listOrders[listName] = [];
+					}
+					// Для нового комикса находим правильную позицию по году или в конец
+					const newYear = parseInt(formData.years.split('-')[0]) || 0;
+					console.log('Добавляем комикс', formData.title, 'в список', listName, 'год:', newYear);
+					const existingComics = comicsData.filter(comic => 
+						comic.readingLists && comic.readingLists.includes(listName) && comic.id !== formData.id
+					);
+					const tempOrdered = [];
+					let inserted = false;
+					// Если режим "В конец" — просто в конец
+					if (listSortModes[listName] === 'end') {
+						listOrders[listName].push(formData.id);
+						inserted = true;
+					}
+					listOrders[listName].forEach(id => {
+						const comic = existingComics.find(c => c.id === id);
+						if (comic) {
+							const existingYear = parseInt(comic.years.split('-')[0]) || 0;
+							if (!inserted && newYear < existingYear) {
+								tempOrdered.push(formData.id);
+								inserted = true;
+								console.log('Вставили комикс перед', comic.title);
+							}
+							tempOrdered.push(id);
+						}
+					});
+					if (!inserted && listSortModes[listName] !== 'end') {
+						tempOrdered.push(formData.id);
+						console.log('Добавили комикс в конец списка');
+					}
+					if (listSortModes[listName] !== 'end') listOrders[listName] = tempOrdered;
+				});
+            }
+
+            saveData();
+            renderCollection();
+            renderReadingLists();
+            hideComicModal();
+        });
+
+        // Удаление комикса
+        function deleteComic(comicId) {
+            if (confirm('Удалить комикс?')) {
+                comicsData = comicsData.filter(c => c.id !== comicId);
+                
+                Object.keys(listOrders).forEach(listName => {
+                    listOrders[listName] = listOrders[listName].filter(id => id !== comicId);
+                });
+                
+                saveData();
+                renderCollection();
+                renderReadingLists();
+            }
+        }
+		
+		// Копирование комикса
+		function copyComic(comicId) {
+			const originalComic = comicsData.find(c => c.id === comicId);
+			if (originalComic) {
+				const copiedComic = {
+					...originalComic,
+					id: Date.now(),
+					title: originalComic.title,
+					dateAdded: new Date().toISOString(),
+					readIssues: 0,
+					isRead: false
+				};
+				
+				comicsData.push(copiedComic);
+				
+				// Добавляем в те же списки чтения
+				if (originalComic.readingLists && originalComic.readingLists.length > 0) {
+					originalComic.readingLists.forEach(listName => {
+						if (!listOrders[listName]) {
+							listOrders[listName] = [];
+						}
+						
+						// Для скопированного комикса находим правильную позицию по году
+						const newYear = parseInt(copiedComic.years.split('-')[0]) || 0;
+						console.log('Добавляем скопированный комикс', copiedComic.title, 'в список', listName, 'год:', newYear);
+						
+						// Получаем существующие комиксы в списке
+						const existingComics = comicsData.filter(comic => 
+							comic.readingLists && comic.readingLists.includes(listName) && comic.id !== copiedComic.id
+						);
+						
+						const tempOrdered = [];
+						let inserted = false;
+						
+						listOrders[listName].forEach(id => {
+							const comic = existingComics.find(c => c.id === id);
+							if (comic) {
+								const existingYear = parseInt(comic.years.split('-')[0]) || 0;
+								
+								if (!inserted && newYear < existingYear) {
+									tempOrdered.push(copiedComic.id);
+									inserted = true;
+									console.log('Вставили скопированный комикс перед', comic.title);
+								}
+								tempOrdered.push(id);
+							}
+						});
+						
+						if (!inserted) {
+							tempOrdered.push(copiedComic.id);
+							console.log('Добавили скопированный комикс в конец списка');
+						}
+						
+						listOrders[listName] = tempOrdered;
+					});
+				}
+				
+				saveData();
+				renderCollection();
+				renderReadingLists();
+				
+				// Показываем уведомление
+				alert('Комикс успешно скопирован!');
+			}
+		}
+		
+		// Установка/снятие закладки текущего чтения
+		function toggleCurrentlyReading(comicId, listName) {
+			if (currentlyReading[listName] === comicId) {
+				// Снимаем закладку
+				delete currentlyReading[listName];
+			} else {
+				// Устанавливаем новую закладку
+				currentlyReading[listName] = comicId;
+			}
+			
+			saveData();
+			renderReadingListContent();
+		}
+
+		// Прокрутка к текущему комиксу при открытии списка
+		function scrollToCurrentlyReading(listName) {
+			if (currentlyReading[listName]) {
+				setTimeout(() => {
+					const element = document.querySelector(`[data-comic-id="${currentlyReading[listName]}"]`);
+					if (element) {
+						element.scrollIntoView({ 
+							behavior: 'smooth', 
+							block: 'center' 
+						});
+						
+						// Добавляем временное выделение
+						element.style.boxShadow = '0 0 20px rgba(245, 158, 11, 0.6)';
+						setTimeout(() => {
+							element.style.boxShadow = '';
+						}, 2000);
+					}
+				}, 300);
+			}
+		}
+
+        // Переключение статуса прочитанности
+        function toggleReadStatus(comicId) {
+            const comic = comicsData.find(c => c.id === comicId);
+            if (comic) {
+                comic.isRead = !comic.isRead;
+                if (comic.isRead) {
+                    comic.readIssues = comic.totalIssues;
+                } else {
+                    comic.readIssues = 0;
+                }
+                saveData();
+                renderCollection();
+                renderReadingListContent();
+            }
+        }
+
+        // Сортировка и фильтрация комиксов
+        function sortComics() {
+            const sortSelect = document.querySelector('#collection .sort-select');
+            currentSort = sortSelect.value;
+            saveData();
+            renderCollection();
+        }
+
+        function filterComics() {
+            renderCollection();
+        }
+
+        // Функция сортировки массива комиксов
+        function sortComicsArray(comics, sortType) {
+            return comics.sort((a, b) => {
+                switch (sortType) {
+                    case 'title':
+                        return a.title.localeCompare(b.title, 'ru');
+                    case 'years':
+                        const yearA = parseInt(a.years.split('-')[0]) || 0;
+                        const yearB = parseInt(b.years.split('-')[0]) || 0;
+                        return yearA - yearB;
+                    case 'progress':
+                        const progressA = a.totalIssues > 0 ? (a.readIssues / a.totalIssues) : 0;
+                        const progressB = b.totalIssues > 0 ? (b.readIssues / b.totalIssues) : 0;
+                        return progressB - progressA;
+                    case 'dateAdded':
+                    default:
+                        return new Date(b.dateAdded) - new Date(a.dateAdded);
+                }
+            });
+        }
+
+// Получение отсортированных комиксов для списка чтения
+function getSortedComicsForList(listName) {
+    const listComics = comicsData.filter(comic => 
+        comic.readingLists && comic.readingLists.includes(listName)
+    );
+    
+    // Если режим сортировки "В конец" — просто возвращаем порядок из listOrders
+    if (listSortModes[listName] === 'end') {
+        if (listOrders[listName] && listOrders[listName].length > 0) {
+            const ordered = [];
+            const orderedIds = new Set();
+            listOrders[listName].forEach(id => {
+                const comic = listComics.find(c => c.id === id);
+                if (comic) {
+                    ordered.push(comic);
+                    orderedIds.add(id);
+                }
+            });
+            // Добавляем новые комиксы в конец
+            const newComics = listComics.filter(comic => !orderedIds.has(comic.id));
+            if (newComics.length > 0) {
+                newComics.forEach(newComic => {
+                    ordered.push(newComic);
+                });
+                listOrders[listName] = ordered.map(comic => comic.id);
+                saveData();
+            }
+            return ordered;
+        } else {
+            // Если порядка нет, просто возвращаем как есть
+            listOrders[listName] = listComics.map(comic => comic.id);
+            saveData();
+            return listComics;
+        }
+    }
+    // По умолчанию — сортировка по году (старое поведение)
+    if (listOrders[listName] && listOrders[listName].length > 0) {
+        const ordered = [];
+        const orderedIds = new Set();
+        
+        // Сначала добавляем комиксы в существующем порядке
+        listOrders[listName].forEach(id => {
+            const comic = listComics.find(c => c.id === id);
+            if (comic) {
+                ordered.push(comic);
+                orderedIds.add(id);
+            }
+        });
+        
+        // Находим новые комиксы
+        const newComics = listComics.filter(comic => !orderedIds.has(comic.id));
+        
+        if (newComics.length > 0) {
+            console.log('Найдены новые комиксы для списка', listName, ':', newComics.map(c => c.title));
+            
+            // Для каждого нового комикса находим правильную позицию
+            newComics.forEach(newComic => {
+                const newYear = parseInt(newComic.years.split('-')[0]) || 0;
+                console.log('Обрабатываем комикс:', newComic.title, 'год:', newYear);
+                
+                let insertIndex = -1;
+                
+                // Ищем первый комикс с годом больше нового
+                for (let i = 0; i < ordered.length; i++) {
+                    const existingYear = parseInt(ordered[i].years.split('-')[0]) || 0;
+                    console.log('Сравниваем с:', ordered[i].title, 'год:', existingYear);
+                    if (newYear < existingYear) {
+                        insertIndex = i;
+                        console.log('Найдена позиция для вставки:', i);
+                        break;
+                    }
+                }
+                
+                // Если не нашли место, добавляем в конец
+                if (insertIndex === -1) {
+                    console.log('Добавляем в конец списка');
+                    ordered.push(newComic);
+                } else {
+                    console.log('Вставляем на позицию:', insertIndex);
+                    ordered.splice(insertIndex, 0, newComic);
+                }
+            });
+            
+            // Обновляем порядок и сохраняем
+            listOrders[listName] = ordered.map(comic => comic.id);
+            console.log('Новый порядок для', listName, ':', ordered.map(c => c.title));
+            saveData();
+        }
+        
+        return ordered;
+    } else {
+        // Если порядка нет, создаем отсортированный по годам
+        const sorted = listComics.sort((a, b) => {
+            const yearA = parseInt(a.years.split('-')[0]) || 0;
+            const yearB = parseInt(b.years.split('-')[0]) || 0;
+            return yearA - yearB;
+        });
+        
+        listOrders[listName] = sorted.map(comic => comic.id);
+        saveData();
+        
+        return sorted;
+    }
+}
+
+		// Drag & Drop функциональность
+		let draggedElement = null;
+		let draggedComicId = null;
+		let draggedFromList = null;
+
+		// Drag & Drop для списков чтения
+		let draggedListElement = null;
+		let draggedListName = null;
+
+        function enableDragAndDrop() {
+            const readingListItems = document.querySelectorAll('.reading-list-item[data-comic-id]');
+            
+            readingListItems.forEach(item => {
+                item.draggable = true;
+                
+                item.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    draggedComicId = parseInt(this.dataset.comicId);
+                    draggedFromList = this.dataset.list;
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                
+                item.addEventListener('dragend', function(e) {
+                    this.classList.remove('dragging');
+                    draggedElement = null;
+                    draggedComicId = null;
+                    draggedFromList = null;
+                });
+                
+                item.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                });
+                
+                item.addEventListener('dragenter', function(e) {
+                    e.preventDefault();
+                    if (draggedElement && draggedElement !== this) {
+                        this.classList.add('drag-over');
+                    }
+                });
+                
+                item.addEventListener('dragleave', function(e) {
+                    this.classList.remove('drag-over');
+                });
+                
+                item.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    
+                    if (draggedElement && draggedElement !== this && draggedFromList === this.dataset.list) {
+                        const container = this.parentNode;
+                        const afterElement = getDragAfterElement(container, e.clientY);
+                        
+                        if (afterElement == null) {
+                            container.appendChild(draggedElement);
+                        } else {
+                            container.insertBefore(draggedElement, afterElement);
+                        }
+                        
+                        updateReadingListOrder(draggedFromList);
+                    }
+                });
+            });
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.reading-list-item:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+		
+		function updateReadingListOrder(listName) {
+			const container = document.querySelector(`[data-list="${listName}"]`).parentNode;
+			const items = container.querySelectorAll('.reading-list-item[data-comic-id]');
+			
+			listOrders[listName] = Array.from(items).map(item => parseInt(item.dataset.comicId));
+			saveData();
+			// Обновляем отображение чтобы сохранить новый порядок
+			renderReadingListContent();
+		}
+
+        function enableGridDragAndDrop() {
+            const gridItems = document.querySelectorAll('.reading-list-grid-item[data-comic-id]');
+            
+            gridItems.forEach(item => {
+                item.draggable = true;
+                
+                item.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    draggedComicId = parseInt(this.dataset.comicId);
+                    draggedFromList = this.dataset.list;
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                
+                item.addEventListener('dragend', function(e) {
+                    this.classList.remove('dragging');
+                    draggedElement = null;
+                    draggedComicId = null;
+                    draggedFromList = null;
+                });
+                
+                item.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                });
+                
+                item.addEventListener('dragenter', function(e) {
+                    e.preventDefault();
+                    if (draggedElement && draggedElement !== this) {
+                        this.classList.add('drag-over');
+                    }
+                });
+                
+                item.addEventListener('dragleave', function(e) {
+                    this.classList.remove('drag-over');
+                });
+                
+                item.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    
+                    if (draggedElement && draggedElement !== this && draggedFromList === this.dataset.list) {
+                        const container = this.parentNode;
+                        const afterElement = getDragAfterElementGrid(container, e.clientX, e.clientY);
+                        
+                        if (afterElement == null) {
+                            container.appendChild(draggedElement);
+                        } else {
+                            container.insertBefore(draggedElement, afterElement);
+                        }
+                        
+                        updateReadingListOrderFromGrid(draggedFromList);
+                    }
+                });
+            });
+        }
+
+        function getDragAfterElementGrid(container, x, y) {
+            const draggableElements = [...container.querySelectorAll('.reading-list-grid-item:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const centerX = box.left + box.width / 2;
+                const centerY = box.top + box.height / 2;
+                
+                const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+                
+                if (distance < closest.distance) {
+                    return { distance: distance, element: child };
+                } else {
+                    return closest;
+                }
+            }, { distance: Number.POSITIVE_INFINITY }).element;
+        }
+
+        function updateReadingListOrderFromGrid(listName) {
+            const container = document.querySelector(`[data-list="${listName}"]`).parentNode;
+            const items = container.querySelectorAll('.reading-list-grid-item[data-comic-id]');
+            
+            listOrders[listName] = Array.from(items).map(item => parseInt(item.dataset.comicId));
+            saveData();
+            // Перерендериваем чтобы обновить номера
+            renderReadingListContent();
+        }
+		
+		// Drag & Drop для списков чтения
+		function enableReadingListDragAndDrop() {
+			const listCards = document.querySelectorAll('.reading-list-card');
+			
+			listCards.forEach(card => {
+				card.draggable = true;
+				
+				card.addEventListener('dragstart', function(e) {
+					draggedListElement = this;
+					draggedListName = this.querySelector('.reading-list-card-title').textContent;
+					this.classList.add('dragging');
+					e.dataTransfer.effectAllowed = 'move';
+				});
+				
+				card.addEventListener('dragend', function(e) {
+					this.classList.remove('dragging');
+					draggedListElement = null;
+					draggedListName = null;
+				});
+				
+				card.addEventListener('dragover', function(e) {
+					e.preventDefault();
+					e.dataTransfer.dropEffect = 'move';
+				});
+				
+				card.addEventListener('dragenter', function(e) {
+					e.preventDefault();
+					if (draggedListElement && draggedListElement !== this) {
+						this.classList.add('drag-over');
+					}
+				});
+				
+				card.addEventListener('dragleave', function(e) {
+					this.classList.remove('drag-over');
+				});
+				
+				card.addEventListener('drop', function(e) {
+					e.preventDefault();
+					this.classList.remove('drag-over');
+					
+					if (draggedListElement && draggedListElement !== this) {
+						const container = this.parentNode;
+						const afterElement = getListDragAfterElement(container, e.clientX, e.clientY);
+						
+						if (afterElement == null) {
+							container.appendChild(draggedListElement);
+						} else {
+							container.insertBefore(draggedListElement, afterElement);
+						}
+						
+						updateReadingListsOrder();
+					}
+				});
+			});
+		}
+
+		function getListDragAfterElement(container, x, y) {
+			const draggableElements = [...container.querySelectorAll('.reading-list-card:not(.dragging)')];
+			
+			return draggableElements.reduce((closest, child) => {
+				const box = child.getBoundingClientRect();
+				const centerX = box.left + box.width / 2;
+				const centerY = box.top + box.height / 2;
+				
+				const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+				
+				if (distance < closest.distance) {
+					return { distance: distance, element: child };
+				} else {
+					return closest;
+				}
+			}, { distance: Number.POSITIVE_INFINITY }).element;
+		}
+
+		function updateReadingListsOrder() {
+			const container = document.getElementById('readingListsGrid');
+			const cards = container.querySelectorAll('.reading-list-card');
+			
+			const newOrder = Array.from(cards).map(card => 
+				card.querySelector('.reading-list-card-title').textContent
+			);
+			
+			readingLists.splice(0, readingLists.length, ...newOrder);
+			
+			saveData();
+			renderReadingListGrid();
+		}
+
+        // Отрисовка коллекции
+        function renderCollection() {
+            const container = document.getElementById('collectionComics');
+            const searchTerm = document.querySelector('#collection .search-box').value.toLowerCase();
+            
+            let comics = comicsData.filter(comic => 
+                comic.title.toLowerCase().includes(searchTerm) || 
+                comic.content.toLowerCase().includes(searchTerm)
+            );
+
+            comics = sortComicsArray(comics, currentSort);
+
+            renderCollectionStats();
+
+            if (comics.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>📚 Комиксов не найдено</h3>
+                        <p>Добавьте комиксы в коллекцию или измените фильтры</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (currentView === 'grid') {
+                container.innerHTML = `<div class="comics-grid">${comics.map(comic => createComicCard(comic)).join('')}</div>`;
+            } else {
+                container.innerHTML = `<div class="comics-list">${comics.map(comic => createComicListItem(comic)).join('')}</div>`;
+            }
+            
+            addProgressBarInteractivity();
+        }
+
+        // Добавление интерактивности к прогресс-барам
+        function addProgressBarInteractivity() {
+            const progressBars = document.querySelectorAll('.progress-bar');
+            
+            progressBars.forEach(bar => {
+                const item = bar.closest('[data-comic-id]');
+                if (!item) return;
+                
+                const comicId = parseInt(item.dataset.comicId);
+                
+                bar.addEventListener('click', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    const width = rect.width;
+                    const percentage = Math.max(0, Math.min(100, (clickX / width) * 100));
+                    
+                    updateComicProgress(comicId, percentage);
+                });
+            });
+        }
+
+        // Отрисовка статистики
+        function renderCollectionStats() {
+            const statsContainer = document.getElementById('collectionStats');
+            const totalComics = comicsData.length;
+            const readComics = comicsData.filter(c => c.isRead).length;
+            const totalIssues = comicsData.reduce((sum, comic) => sum + comic.totalIssues, 0);
+            const readIssues = comicsData.reduce((sum, comic) => sum + comic.readIssues, 0);
+
+            statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${totalComics}</div>
+                    <div class="stat-label">Всего комиксов</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${readComics}</div>
+                    <div class="stat-label">Прочитано</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${totalIssues}</div>
+                    <div class="stat-label">Всего выпусков</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${readIssues}</div>
+                    <div class="stat-label">Прочитано выпусков</div>
+                </div>
+            `;
+        }
+
+        // Создание карточки комикса
+        function createComicCard(comic) {
+            const progress = comic.totalIssues > 0 ? (comic.readIssues / comic.totalIssues) * 100 : 0;
+            const imageHtml = comic.cover ? 
+                `<img src="${comic.cover}" alt="${comic.title}" class="comic-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                 <div class="comic-image" style="display:none;">📖</div>` :
+                `<div class="comic-image">📖</div>`;
+
+            return `
+                <div class="comic-card ${comic.isRead ? 'read' : ''}" data-comic-id="${comic.id}">
+                    ${imageHtml}
+                    <div class="comic-info">
+                        <div class="comic-title">${comic.title}</div>
+                        <div class="comic-content">${parseComicContent(comic.content)}</div>
+                        <div class="comic-years">${comic.years}</div>
+                        <div class="progress-indicator">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="progress-text">${comic.readIssues}/${comic.totalIssues} выпусков</div>
+                        </div>
+                    </div>
+                    <div class="comic-actions">
+                        <button class="action-btn edit-btn" onclick="showComicModal(${JSON.stringify(comic).replace(/"/g, '&quot;')})" title="Редактировать">✏️</button>
+						<button class="action-btn copy-btn" onclick="copyComic(${comic.id})" title="Копировать">📋</button>
+                        <button class="action-btn read-btn" onclick="toggleReadStatus(${comic.id})" title="${comic.isRead ? 'Отметить как непрочитанный' : 'Отметить как прочитанный'}">${comic.isRead ? '📖' : '✅'}</button>
+                        <button class="action-btn delete-btn" onclick="deleteComic(${comic.id})" title="Удалить">✕</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Создание элемента списка комикса
+        function createComicListItem(comic) {
+            const progress = comic.totalIssues > 0 ? (comic.readIssues / comic.totalIssues) * 100 : 0;
+            const imageHtml = comic.cover ? 
+                `<img src="${comic.cover}" alt="${comic.title}" class="comic-list-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                 <div class="comic-list-image" style="display:none;">📖</div>` :
+                `<div class="comic-list-image">📖</div>`;
+
+            return `
+                <div class="comic-list-item ${comic.isRead ? 'read' : ''}" data-comic-id="${comic.id}">
+                    ${imageHtml}
+                    <div class="comic-list-info">
+                        <div class="comic-title">${comic.title}</div>
+                        <div class="comic-content">${parseComicContent(comic.content)}</div>
+                        <div class="comic-years">${comic.years}</div>
+                        <div class="progress-indicator">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="progress-text">${comic.readIssues}/${comic.totalIssues} выпусков прочитано</div>
+                        </div>
+                    </div>
+                    <div class="comic-actions">
+                        <button class="action-btn edit-btn" onclick="showComicModal(${JSON.stringify(comic).replace(/"/g, '&quot;')})" title="Редактировать">✏️</button>
+						<button class="action-btn copy-btn" onclick="copyComic(${comic.id})" title="Копировать">📋</button>
+                        <button class="action-btn read-btn" onclick="toggleReadStatus(${comic.id})" title="${comic.isRead ? 'Отметить как непрочитанный' : 'Отметить как прочитанный'}">${comic.isRead ? '📖' : '✅'}</button>
+                        <button class="action-btn delete-btn" onclick="deleteComic(${comic.id})" title="Удалить">✕</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Отрисовка списков чтения
+        function renderReadingLists() {
+            renderReadingListGrid();
+            renderReadingListContent();
+            
+            // Обновляем режимные кнопки
+            document.getElementById('modeSingleBtn').classList.toggle('active', readingListsMode === 'single');
+            document.getElementById('modeDoubleBtn').classList.toggle('active', readingListsMode === 'double');
+            // Показываем/скрываем глобальный переключатель вида
+            const globalToggle = document.getElementById('globalReadingListToggle');
+            if ((readingListsMode === 'single' && expandedLists.size > 0) || readingListsMode === 'double') {
+                globalToggle.style.display = 'flex';
+            } else {
+                globalToggle.style.display = 'none';
+            }
+        }
+
+		// Отрисовка сетки списков чтения
+		function renderReadingListGrid() {
+			const container = document.getElementById('readingListsGrid');
+			
+			if (readingLists.length === 0) {
+				container.innerHTML = `
+					<div class="empty-state">
+						<h3>📖 Списков чтения нет</h3>
+						<p>Создайте новый список чтения выше</p>
+					</div>
+				`;
+				return;
+			}
+
+			container.innerHTML = readingLists.map(listName => {
+				const listComics = comicsData.filter(comic => 
+					comic.readingLists && comic.readingLists.includes(listName)
+				);
+				const readCount = listComics.filter(c => c.isRead).length;
+				let isActive = false;
+				if (readingListsMode === 'double') {
+					isActive = openedLists.includes(listName);
+				} else {
+					isActive = expandedLists.has(listName);
+				}
+				return `
+					<div class="reading-list-card ${isActive ? 'active' : ''}" onmouseenter="this.classList.add('hovered')" onmouseleave="this.classList.remove('hovered')" onclick="toggleReadingList('${listName}')">
+						<div class="reading-list-card-title">${listName}</div>
+						<div class="reading-list-card-meta">${readCount}/${listComics.length} прочитано</div>
+						<div class="reading-list-card-actions" onclick="event.stopPropagation()">
+							<button class="action-btn edit-btn" onclick="showListModal('${listName}')" title="Редактировать">✏️</button>
+							<button class="action-btn delete-btn" onclick="deleteReadingList('${listName}')" title="Удалить">✕</button>
+							${readingListsMode === 'double' ? `
+								<button class="action-btn" style="background: #334155; color: #f59e0b; font-weight: bold; border: 2px solid #64748b;" onclick="setOpenedList('${listName}', 0)" title="Открыть как первый">1</button>
+								<button class="action-btn" style="background: #334155; color: #f59e0b; font-weight: bold; border: 2px solid #64748b;" onclick="setOpenedList('${listName}', 1)" title="Открыть как второй">2</button>
+							` : ''}
+						</div>
+					</div>
+				`;
+			}).join('');
+			
+			// Включаем drag & drop для списков чтения
+			setTimeout(() => {
+				enableReadingListDragAndDrop();
+			}, 100);
+		}
+
+        // Отрисовка содержимого списков чтения
+        function renderReadingListContent() {
+            const container = document.getElementById('readingListsContainer');
+            
+            // --- Сохраняем scrollTop для двух списков (по имени списка) ---
+            let scrollPositions = {};
+            if (readingListsMode === 'double') {
+                const cols = document.querySelectorAll('.reading-list-double-col');
+                [0, 1].forEach(i => {
+                    if (cols[i] && openedLists[i]) {
+                        scrollPositions[openedLists[i]] = cols[i].scrollTop;
+                    }
+                });
+            }
+            if (readingListsMode === 'double') {
+                // Два списка рядом
+                if (!openedLists || openedLists.length < 2) {
+                    openedLists = readingLists.slice(0, 2);
+                }
+                container.innerHTML = `
+                    <div style="display: flex; gap: 20px;">
+                        <div class="reading-list-double-col" data-list-name="${openedLists[0] || ''}" style="flex:1; min-width:0; max-width:50%; height:91vh; overflow-y:auto; background:rgba(30,41,59,0.15); border-radius: 16px; border: 1px solid #475569;">
+                             ${renderSingleReadingListContent(openedLists[0], 0)}
+                         </div>
+                        <div class="reading-list-double-col" data-list-name="${openedLists[1] || ''}" style="flex:1; min-width:0; max-width:50%; height:91vh; overflow-y:auto; background:rgba(30,41,59,0.15); border-radius: 16px; border: 1px solid #475569;">
+                             ${renderSingleReadingListContent(openedLists[1], 1)}
+                         </div>
+                    </div>
+                `;
+                // --- Восстанавливаем scrollTop для каждого списка ---
+                setTimeout(() => {
+                    const cols = document.querySelectorAll('.reading-list-double-col');
+                    [0, 1].forEach(i => {
+                        if (cols[i] && openedLists[i] && scrollPositions[openedLists[i]] !== undefined) {
+                            cols[i].scrollTop = scrollPositions[openedLists[i]];
+                        }
+                    });
+                }, 0);
+            } else {
+                const expandedListsArray = Array.from(expandedLists);
+                if (expandedListsArray.length === 0) {
+                    container.innerHTML = '';
+                    return;
+                }
+                container.innerHTML = expandedListsArray.map(listName => renderSingleReadingListContent(listName, 0)).join('');
+            }
+            setTimeout(() => {
+                enableDragAndDrop();
+                enableGridDragAndDrop();
+                addProgressBarInteractivity();
+            }, 100);
+        }
+
+        function renderSingleReadingListContent(listName, colIdx) {
+            if (!listName) return '';
+            const listComics = getSortedComicsForList(listName);
+            const viewMode = listViewModes[listName] || 'list';
+            const sortMode = listSortModes[listName] || 'years';
+            // Подсветка активного списка в double-режиме
+            let highlight = '';
+            // В режиме double не добавляем border/box-shadow
+            return `
+                <div class="reading-list-content active" style="${highlight}">
+                    <div class="reading-list-view-controls">
+                        <h3 style="color: #f1f5f9; margin: 0; flex: 1;">${listName}</h3>
+                        <button class="btn btn-secondary" onclick="exportReadingListToTxt('${listName}')" title="Экспорт списка в TXT">📄</button>
+                        <div class="reading-list-sort-toggle">
+                            <button class="${sortMode === 'years' ? 'active' : ''}" onclick="setListSortMode('${listName}', 'years')">По годам</button>
+                            <button class="${sortMode === 'end' ? 'active' : ''}" onclick="setListSortMode('${listName}', 'end')">В конец</button>
+                        </div>
+                        <div class="reading-list-view-toggle">
+                            <button class="${viewMode === 'list' ? 'active' : ''}" onclick="toggleReadingListView('${listName}', 'list')">📋</button>
+                            <button class="${viewMode === 'grid' ? 'active' : ''}" onclick="toggleReadingListView('${listName}', 'grid')">🔲</button>
+                        </div>
+                    </div>
+                    ${listComics.length === 0 ? 
+                        '<div style="text-align: center; color: #94a3b8; padding: 40px;">Комиксов в списке нет</div>' :
+                        (viewMode === 'grid' ? 
+                            `<div class="reading-list-grid-view">${listComics.map((comic, index) => createReadingListGridItem(comic, listName, index)).join('')}</div>` :
+                            listComics.map(comic => createReadingListItem(comic, listName)).join('')
+                        )
+                    }
+                </div>
+            `;
+        }
+
+        // Создание элемента списка чтения
+        function createReadingListItem(comic, listName) {
+            return `
+                <div class="reading-list-item ${comic.isRead ? 'read' : ''}" data-comic-id="${comic.id}" data-list="${listName}">
+                    <div class="reading-list-comic-info">
+
+                        ${comic.cover ? 
+                            `<img src="${comic.cover}" alt="${comic.title}" class="reading-list-image">` :
+                            '<div class="reading-list-image">📖</div>'
+                        }
+                        <div class="reading-list-text-info">
+                            <div class="reading-list-main-info">
+                                <div class="reading-list-title-text">${comic.title}</div>
+                                <div class="reading-list-years">${comic.years}</div>
+                                <div class="reading-list-content-text">${parseComicContent(comic.content)}</div>
+                            </div>
+                            <div class="reading-list-progress">
+                                <div class="reading-list-progress-blocks">
+                                    ${createProgressBlocks(comic)}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="drag-handle">⋮⋮</div>
+                    </div>
+                    <div class="comic-actions">
+						 <button class="action-btn bookmark-action-btn ${currentlyReading[listName] === comic.id ? 'active' : ''}" 
+							onclick="toggleCurrentlyReading(${comic.id}, '${listName}')" 
+							title="${currentlyReading[listName] === comic.id ? 'Снять закладку' : 'Отметить как читаемый'}">⭐</button>
+                          <button class="action-btn edit-btn" onclick="showComicModal(${JSON.stringify(comic).replace(/"/g, '&quot;')})" title="Редактировать">✏️</button>
+						 <button class="action-btn copy-btn" onclick="copyComic(${comic.id})" title="Копировать">📋</button>
+						 <button class="action-btn read-btn" onclick="toggleReadStatus(${comic.id})" title="${comic.isRead ? 'Отметить как непрочитанный' : 'Отметить как прочитанный'}">${comic.isRead ? '📖' : '✅'}</button>
+						 <button class="action-btn delete-btn" onclick="deleteComic(${comic.id})" title="Удалить">✕</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Создание элемента сеточного вида для списка чтения
+        function createReadingListGridItem(comic, listName, index) {
+            const progress = comic.totalIssues > 0 ? (comic.readIssues / comic.totalIssues) * 100 : 0;
+            
+            return `
+                <div class="reading-list-grid-item ${comic.isRead ? 'read' : ''}" data-comic-id="${comic.id}" data-list="${listName}">
+                    <div class="reading-list-order-arrow">${index + 1}</div>
+
+                    ${comic.cover ? 
+                        `<img src="${comic.cover}" alt="${comic.title}" class="reading-list-grid-image">` :
+                        '<div class="reading-list-grid-image">📖</div>'
+                    }
+                    <div class="reading-list-grid-info">
+                        <div class="reading-list-grid-title">${comic.title}</div>
+                        <div class="reading-list-grid-meta">
+                            <div class="reading-list-grid-years">${comic.years}</div>
+                        </div>
+                        <div class="reading-list-grid-content">${parseComicContent(comic.content)}</div>
+                        <div class="reading-list-grid-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="progress-text">${comic.readIssues}/${comic.totalIssues} выпусков</div>
+                        </div>
+                    </div>
+                    <div class="comic-actions">
+							<button class="action-btn bookmark-action-btn ${currentlyReading[listName] === comic.id ? 'active' : ''}" 
+							onclick="toggleCurrentlyReading(${comic.id}, '${listName}')" 
+							title="${currentlyReading[listName] === comic.id ? 'Снять закладку' : 'Отметить как читаемый'}">⭐</button>
+                          <button class="action-btn edit-btn" onclick="showComicModal(${JSON.stringify(comic).replace(/"/g, '&quot;')})" title="Редактировать">✏️</button>
+						  <button class="action-btn copy-btn" onclick="copyComic(${comic.id})" title="Копировать">📋</button>
+						  <button class="action-btn read-btn" onclick="toggleReadStatus(${comic.id})" title="${comic.isRead ? 'Отметить как непрочитанный' : 'Отметить как прочитанный'}">${comic.isRead ? '📖' : '✅'}</button>
+						  <button class="action-btn delete-btn" onclick="deleteComic(${comic.id})" title="Удалить">✕</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Создание блоков прогресса
+        function createProgressBlocks(comic) {
+            const blocks = [];
+            const totalIssues = Math.min(comic.totalIssues, 100);
+            
+            const blockWidth = totalIssues <= 10 ? '40px' : 
+                              totalIssues <= 20 ? '35px' : 
+                              totalIssues <= 50 ? '30px' : '25px';
+            
+            for (let i = 1; i <= totalIssues; i++) {
+                let blockClass = 'progress-block';
+                if (i <= comic.readIssues) {
+                    blockClass += ' read';
+                }
+                
+                blocks.push(`
+                    <div class="${blockClass}" 
+                         data-comic-id="${comic.id}" 
+                         data-issue="${i}"
+                         onclick="updateComicProgressFromBlock(${comic.id}, ${i})"
+                         title="Выпуск ${i}"
+                         style="width: ${blockWidth};">
+                        ${i}
+                    </div>
+                `);
+            }
+            
+            if (comic.totalIssues > 100) {
+                blocks.push(`
+                    <div class="progress-block" style="background: rgba(100, 116, 139, 0.5); cursor: default; width: ${blockWidth};" title="Всего выпусков: ${comic.totalIssues}">
+                        +${comic.totalIssues - 100}
+                    </div>
+                `);
+            }
+            
+            return blocks.join('');
+        }
+
+        // Обновление прогресса из блока
+        function updateComicProgressFromBlock(comicId, issueNumber) {
+            const comic = comicsData.find(c => c.id === comicId);
+            if (comic) {
+                // Если кликнули на первый выпуск и он уже прочитан, сбрасываем на 0
+                if (issueNumber === 1 && comic.readIssues >= 1) {
+                    comic.readIssues = 0;
+                } else {
+                    comic.readIssues = issueNumber;
+                }
+                comic.isRead = comic.readIssues >= comic.totalIssues;
+                saveData();
+                renderCollection();
+                renderReadingListContent();
+            }
+        }
+
+        // Управление списками чтения
+        function addReadingList() {
+            const input = document.getElementById('newListName');
+            const name = input.value.trim();
+            
+            if (name && !readingLists.includes(name)) {
+                readingLists.push(name);
+                saveData();
+                input.value = '';
+                renderReadingListGrid();
+            }
+        }
+
+        function deleteReadingList(listName) {
+            if (confirm(`Удалить список "${listName}"? Комиксы останутся в коллекции.`)) {
+                const listIndex = readingLists.indexOf(listName);
+                if (listIndex !== -1) {
+                    readingLists.splice(listIndex, 1);
+                }
+                delete listOrders[listName];
+                delete listViewModes[listName];
+                expandedLists.delete(listName);
+                
+                comicsData.forEach(comic => {
+                    if (comic.readingLists) {
+                        comic.readingLists = comic.readingLists.filter(list => list !== listName);
+                    }
+                });
+                
+                saveData();
+                renderReadingListGrid();
+                renderReadingListContent();
+            }
+        }
+
+        function showListModal(listName = null) {
+            editingList = listName;
+            const modal = document.getElementById('listModal');
+            const title = document.getElementById('listModalTitle');
+            
+            if (listName) {
+                title.textContent = 'Редактировать список';
+                document.getElementById('listName').value = listName;
+            } else {
+                title.textContent = 'Добавить список';
+                document.getElementById('listName').value = '';
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function hideListModal() {
+            document.getElementById('listModal').style.display = 'none';
+            editingList = null;
+        }
+
+        // Обработка формы списка
+        document.getElementById('listForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newName = document.getElementById('listName').value.trim();
+            
+            if (newName && newName !== editingList && !readingLists.includes(newName)) {
+                if (editingList) {
+                    const index = readingLists.indexOf(editingList);
+                    if (index !== -1) {
+                        readingLists[index] = newName;
+                    }
+                    
+                    if (listOrders[editingList]) {
+                        listOrders[newName] = listOrders[editingList];
+                        delete listOrders[editingList];
+                    }
+
+                    if (listViewModes[editingList]) {
+                        listViewModes[newName] = listViewModes[editingList];
+                        delete listViewModes[editingList];
+                    }
+                    
+                    if (expandedLists.has(editingList)) {
+                        expandedLists.delete(editingList);
+                        expandedLists.add(newName);
+                    }
+                    
+                    comicsData.forEach(comic => {
+                        if (comic.readingLists && comic.readingLists.includes(editingList)) {
+                            const listIndex = comic.readingLists.indexOf(editingList);
+                            comic.readingLists[listIndex] = newName;
+                        }
+                    });
+                } else {
+                    readingLists.push(newName);
+                }
+                
+                saveData();
+                renderReadingListGrid();
+                renderReadingListContent();
+                hideListModal();
+            }
+        });
+
+        // Импорт/экспорт данных
+        function exportData() {
+            const exportData = {
+                comicsData: comicsData,
+                readingLists: readingLists,
+                listOrders: listOrders,
+                listViewModes: listViewModes,
+				currentlyReading: currentlyReading,
+                settings: appSettings
+            };
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `marvel-comics-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+		
+		// Экспорт списка чтения в TXT файл
+		function exportReadingListToTxt(listName) {
+			const listComics = getSortedComicsForList(listName);
+			
+			if (listComics.length === 0) {
+				alert('Список пуст - нечего экспортировать');
+				return;
+			}
+			
+			let txtContent = '';
+			listComics.forEach((comic, index) => {
+				txtContent += `${index + 1}. ${comic.title} (${comic.years}) - ${comic.content}\n`;
+			});
+			
+			const dataBlob = new Blob([txtContent], { type: 'text/plain; charset=utf-8' });
+			const url = URL.createObjectURL(dataBlob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = `${listName.replace(/[^a-zA-Zа-яА-Я0-9]/g, '_')}.txt`;
+			link.click();
+			URL.revokeObjectURL(url);
+		}
+
+        function importData() {
+            document.getElementById('importFile').click();
+        }
+
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        
+                        if (confirm('Заменить все данные импортированными? (Текущие данные будут удалены)')) {
+                            comicsData = importedData.comicsData || [];
+                            readingLists = importedData.readingLists || [];
+                            listOrders = importedData.listOrders || {};
+                            listViewModes = importedData.listViewModes || {};
+                            appSettings = importedData.settings || {};
+                            currentlyReading = importedData.currentlyReading || {};
+                            currentView = appSettings.view || 'list';
+                            currentSort = appSettings.sort || 'dateAdded';
+                            expandedLists.clear();
+                            
+                            saveData();
+                            renderCollection();
+                            renderReadingLists();
+                            alert('Данные успешно импортированы!');
+                        }
+                    } catch (error) {
+                        alert('Ошибка при чтении файла! Проверьте формат данных.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // Закрытие модальных окон при клике вне их
+        document.addEventListener('click', (e) => {
+            const comicModal = document.getElementById('comicModal');
+            const listModal = document.getElementById('listModal');
+            
+            if (e.target === comicModal) {
+                hideComicModal();
+            }
+            if (e.target === listModal) {
+                hideListModal();
+            }
+        });
+
+        // Обработка Enter в поле добавления списка
+        document.getElementById('newListName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addReadingList();
+            }
+        });
+
+        // Горячие клавиши
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'n' && currentTab === 'collection') {
+                e.preventDefault();
+                showComicModal();
+            }
+            
+            if (e.key === 'Escape') {
+                hideComicModal();
+                hideListModal();
+            }
+        });
+
+        // Управление видимостью кнопок навигации
+        function updateScrollButtons() {
+            const scrollButtons = document.querySelector('.scroll-buttons');
+            const upBtn = document.querySelector('.scroll-btn[onclick="scrollToTop()"]');
+            const downBtn = document.querySelector('.scroll-btn[onclick="scrollToBottom()"]');
+            
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight;
+            const clientHeight = window.innerHeight;
+            
+            const showUp = scrollTop > 300;
+            const showDown = scrollTop < (scrollHeight - clientHeight - 300);
+            
+            if (showUp || showDown) {
+                scrollButtons.classList.add('visible');
+                upBtn.style.display = showUp ? 'flex' : 'none';
+                downBtn.style.display = showDown ? 'flex' : 'none';
+            } else {
+                scrollButtons.classList.remove('visible');
+            }
+        }
+
+        // Слушатель прокрутки
+        window.addEventListener('scroll', updateScrollButtons);
+        window.addEventListener('resize', updateScrollButtons);
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Устанавливаем активную вкладку "Списки чтения"
+            currentTab = 'reading-lists';
+            
+            updateTabIndicator();
+            
+            // Если есть списки чтения, открываем первый
+            if (readingLists.length > 0) {
+                expandedLists.add(readingLists[0]);
+            }
+            
+            renderReadingLists();
+            
+            const sortSelect = document.querySelector('#collection .sort-select');
+            if (sortSelect) {
+                sortSelect.value = currentSort;
+            }
+            
+            const viewButtons = document.querySelector('#collection .view-toggle');
+            if (viewButtons) {
+                Array.from(viewButtons.children).forEach(btn => btn.classList.remove('active'));
+                if (currentView === 'list') {
+                    viewButtons.children[0].classList.add('active');
+                } else {
+                    viewButtons.children[1].classList.add('active');
+                }
+            }
+        });
+
+        // Инициализация
+        updateTabIndicator();
+        
+        // Устанавливаем активную вкладку "Списки чтения" по умолчанию
+        if (readingLists.length > 0) {
+            expandedLists.add(readingLists[0]);
+        }
+        renderReadingLists();
+
+        // --- Функция для оборачивания выделенного текста ---
+        function wrapSelection(textareaId, before, after) {
+            const textarea = document.getElementById(textareaId);
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const value = textarea.value;
+            if (start !== end) {
+                const selected = value.substring(start, end);
+                textarea.value = value.substring(0, start) + before + selected + after + value.substring(end);
+                textarea.focus();
+                textarea.selectionStart = start + before.length;
+                textarea.selectionEnd = end + before.length;
+            } else {
+                // Если ничего не выделено, вставляем шаблон
+                textarea.value = value.substring(0, start) + before + after + value.substring(end);
+                textarea.focus();
+                textarea.selectionStart = textarea.selectionEnd = start + before.length;
+            }
+        }
+        // --- Горячие клавиши для жирного и полупрозрачного ---
+        document.getElementById('comicContent').addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+                e.preventDefault();
+                wrapSelection('comicContent', '**', '**');
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 't') {
+                e.preventDefault();
+                wrapSelection('comicContent', '~~', '~~');
+            }
+        });
+        // --- Парсер разметки для comicContent ---
+        function parseComicContent(content) {
+            if (!content) return '';
+            // Экранируем < и >
+            content = content.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            // Жирный: **текст**
+            content = content.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+            // Полупрозрачный: ~~текст~~
+            content = content.replace(/~~(.+?)~~/g, '<span style="opacity:0.5">$1</span>');
+            // Автоматически выделять жирным всё, что начинается с # и до пробела или конца строки, если не внутри **...**
+            content = content.replace(/(^|\s)(#\S+)/g, function(match, p1, p2) {
+                // Не оборачивать, если уже внутри <b>...</b>
+                if (p1.match(/<b>$/)) return match;
+                return p1 + '<b>' + p2 + '</b>';
+            });
+            // Преобразование ссылок в кликабельные
+            content = content.replace(/(https?:\/\/[\w\-._~:/?#[\]@!$&'()*+,;=%]+)/g, '<a href="$1" target="_blank">$1</a>');
+            return content;
+        }
+
+
+
+        function setReadingListsMode(mode) {
+            readingListsMode = mode;
+            localStorage.setItem('marvel-reading-lists-mode', mode);
+            if (mode === 'double') {
+                if (!openedLists || openedLists.length < 2) {
+                    openedLists = readingLists.slice(0, 2);
+                    localStorage.setItem('marvel-opened-lists', JSON.stringify(openedLists));
+                }
+            } else {
+                if (!openedLists || openedLists.length === 0) {
+                    openedLists = [readingLists[0]];
+                    localStorage.setItem('marvel-opened-lists', JSON.stringify(openedLists));
+                }
+            }
+            renderReadingLists();
+        }
+        function setOpenedList(listName, pos) {
+            if (readingListsMode === 'double') {
+                if (pos === 0) {
+                    openedLists[0] = listName;
+                } else {
+                    openedLists[1] = listName;
+                }
+                // Не допускаем одинаковых списков
+                if (openedLists[0] === openedLists[1]) {
+                    openedLists[1] = readingLists.find(l => l !== openedLists[0]) || openedLists[0];
+                }
+            } else {
+                openedLists = [listName];
+            }
+            localStorage.setItem('marvel-opened-lists', JSON.stringify(openedLists));
+            renderReadingLists();
+        }
+
+        // Функция для переключения режима сортировки списка
+        function setListSortMode(listName, mode) {
+            listSortModes[listName] = mode;
+            saveData();
+            renderReadingLists();
+        }
+    </script>
+</body>
+</html>
