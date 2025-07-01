@@ -51,14 +51,16 @@
         }
 
         .tabs {
-            position: sticky;
-            top: 0;
+            position: fixed;
+            top: 64px;
             left: 0;
             right: 0;
-            z-index: 1001;
             background: rgba(51, 65, 85, 0.95);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            margin-bottom: 0;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid #475569;
+            padding: 0 20px;
+            z-index: 999;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
         .tab-buttons {
@@ -66,18 +68,42 @@
             gap: 2px;
             overflow-x: auto;
             position: relative;
-            width: 100%;
         }
 
         .tab-button {
-            flex: 1 1 50%;
-            min-width: 120px;
-            font-size: 15px;
-            padding: 12px 0;
+            padding: 15px 25px;
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tab-button:hover {
+            color: #f1f5f9;
+            background: rgba(71, 85, 105, 0.5);
+        }
+
+        .tab-button.active {
+            color: #f59e0b;
+            border-bottom-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
         }
 
         .tab-indicator {
-            display: none;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: #f59e0b;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 2px 2px 0 0;
         }
 
         .main-content {
@@ -880,12 +906,10 @@
         }
 
         .reading-lists-grid-page {
-            display: none;
-        }
-
-        .reading-lists-grid-page.mobile-visible {
             display: grid;
-            margin-bottom: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
         .reading-list-card {
@@ -1198,81 +1222,18 @@
             }
             .reading-list-sort-toggle, .reading-list-view-toggle {
                 margin-bottom: 0;
-                width: 100%;
-                display: flex;
+            }
+            .reading-list-view-controls .btn[title="Экспорт списка в TXT"] {
+                display: none !important;
+            }
+            .reading-list-list-item {
                 flex-direction: row;
-                gap: 0;
-            }
-            .reading-list-sort-toggle button, .reading-list-view-toggle button {
-                flex: 1 1 0;
-                width: 100%;
-                min-width: 0;
-                font-size: 14px;
-                padding: 10px 0;
-                border-radius: 0 !important;
-                margin: 0 !important;
-            }
-            .reading-list-sort-toggle button:first-child, .reading-list-view-toggle button:first-child {
-                border-radius: 8px 0 0 8px !important;
-            }
-            .reading-list-sort-toggle button:last-child, .reading-list-view-toggle button:last-child {
-                border-radius: 0 8px 8px 0 !important;
-            }
-            .reading-list-sort-toggle, .reading-list-view-toggle {
-                margin-top: 6px;
-            }
-            .reading-list-sort-toggle {
-                margin-bottom: 6px;
-            }
-            .reading-list-progress-blocks {
-                display: none;
-            }
-            .reading-list-progress-blocks.mobile-expanded {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 2px;
-                margin-bottom: 10px;
-            }
-            .reading-list-progress-blocks .btn-secondary {
-                display: block !important;
-                width: 100%;
-                margin: 0 auto 6px auto;
-                font-size: 13px;
-                padding: 6px 0;
-            }
-            .reading-list-progress-blocks .btn-secondary.mobile-progress-toggle {
-                display: block !important;
-                width: 100%;
-                margin: 0 auto 6px auto;
-                font-size: 13px;
-                padding: 6px 0;
-            }
-            .reading-list-comic-info {
-                flex-direction: row;
-                gap: 10px;
-            }
-            .reading-list-image {
-                width: 70px;
-                height: 110px;
-                align-self: flex-start;
-                border-radius: 8px;
-            }
-            .reading-list-title-text, .reading-list-years {
-                margin-bottom: 4px;
             }
             .reading-list-content-text {
                 font-size: 13px;
-                margin-bottom: 0;
-                margin-top: 8px;
-                width: 100%;
-                display: block;
             }
-            .reading-list-main-info {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 4px;
-                width: 100%;
+            .reading-list-progress {
+                margin-top: 4px;
             }
             .reading-list-card-actions {
                 gap: 2px;
@@ -1293,17 +1254,65 @@
                 margin-bottom: 10px;
                 cursor: pointer;
                 width: 100%;
-                margin-top: 0;
-            }
-            .reading-lists-toggle-btn.mobile-top {
-                margin-top: 10px;
-                margin-bottom: 10px;
             }
             .reading-lists-grid-page {
                 display: none;
             }
             .reading-lists-grid-page.mobile-visible {
                 display: grid;
+                margin-bottom: 10px;
+            }
+            .tabs {
+                position: sticky;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: auto;
+                background: rgba(51, 65, 85, 0.95);
+                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                margin-bottom: 0;
+                padding: 0 0;
+            }
+            .tab-buttons {
+                display: flex;
+                gap: 0;
+                width: 100%;
+            }
+            .tab-button {
+                flex: 1 1 0;
+                min-width: 0;
+                font-size: 15px;
+                padding: 12px 0;
+                border-bottom: none;
+                background: transparent;
+                color: #cbd5e1;
+                font-weight: 600;
+                border-radius: 0;
+            }
+            .tab-indicator {
+                display: none;
+            }
+            .tab-button.active {
+                color: #f59e0b;
+                background: rgba(245, 158, 11, 0.1);
+            }
+            .reading-lists-toggle-btn {
+                display: flex !important;
+                align-items: center;
+                justify-content: flex-start;
+                background: rgba(71, 85, 105, 0.8);
+                border: 1px solid #475569;
+                border-radius: 10px;
+                padding: 8px 14px;
+                font-size: 16px;
+                color: #f1f5f9;
+                margin-bottom: 10px;
+                margin-top: 0;
+                cursor: pointer;
+                width: 100%;
+            }
+            .reading-lists-toggle-btn.mobile-top {
+                margin-top: 10px;
                 margin-bottom: 10px;
             }
             .reading-list-view-controls {
@@ -1317,11 +1326,12 @@
                 margin-bottom: 0;
             }
             .reading-list-sort-toggle, .reading-list-view-toggle {
-                margin-bottom: 0;
-                width: 100%;
                 display: flex;
                 flex-direction: row;
-                gap: 0;
+                gap: 8px;
+                width: 100%;
+                margin-top: 6px;
+                margin-bottom: 6px;
             }
             .reading-list-sort-toggle button, .reading-list-view-toggle button {
                 flex: 1 1 0;
@@ -1329,70 +1339,21 @@
                 min-width: 0;
                 font-size: 14px;
                 padding: 10px 0;
-                border-radius: 0 !important;
+                border-radius: 8px !important;
                 margin: 0 !important;
             }
-            .reading-list-sort-toggle button:first-child, .reading-list-view-toggle button:first-child {
-                border-radius: 8px 0 0 8px !important;
-            }
-            .reading-list-sort-toggle button:last-child, .reading-list-view-toggle button:last-child {
-                border-radius: 0 8px 8px 0 !important;
-            }
             .reading-list-sort-toggle, .reading-list-view-toggle {
-                margin-top: 6px;
-            }
-            .reading-list-sort-toggle {
-                margin-bottom: 6px;
-            }
-            .reading-list-progress-blocks {
-                display: none;
-            }
-            .reading-list-progress-blocks.mobile-expanded {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 2px;
-                margin-bottom: 10px;
-            }
-            .reading-list-progress-blocks .btn-secondary {
-                display: block !important;
-                width: 100%;
-                margin: 0 auto 6px auto;
-                font-size: 13px;
-                padding: 6px 0;
-            }
-            .reading-list-progress-blocks .btn-secondary.mobile-progress-toggle {
-                display: block !important;
-                width: 100%;
-                margin: 0 auto 6px auto;
-                font-size: 13px;
-                padding: 6px 0;
-            }
-            .reading-list-comic-info {
-                flex-direction: row;
-                gap: 10px;
-            }
-            .reading-list-image {
-                width: 70px;
-                height: 110px;
-                align-self: flex-start;
-                border-radius: 8px;
-            }
-            .reading-list-title-text, .reading-list-years {
-                margin-bottom: 4px;
-            }
-            .reading-list-content-text {
-                font-size: 13px;
                 margin-bottom: 0;
-                margin-top: 8px;
-                width: 100%;
-                display: block;
             }
-            .reading-list-main-info {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 4px;
+            .reading-list-view-controls .btn[title="Экспорт списка в TXT"] {
+                display: none !important;
+            }
+            .reading-list-progress-blocks .btn-secondary, .reading-list-progress-blocks .btn-secondary.mobile-progress-toggle {
+                display: block !important;
                 width: 100%;
+                margin: 8px 0 8px 0;
+                font-size: 15px;
+                padding: 10px 0;
             }
         }
 
@@ -3113,37 +3074,47 @@ function getSortedComicsForList(listName) {
         function createProgressBlocks(comic) {
             const blocks = [];
             const totalIssues = Math.min(comic.totalIssues, 100);
-            
+            const isMobile = window.innerWidth <= 768;
+            const expanded = comic._mobileProgressExpanded;
             const blockWidth = totalIssues <= 10 ? '40px' : 
                               totalIssues <= 20 ? '35px' : 
                               totalIssues <= 50 ? '30px' : '25px';
-            
-            for (let i = 1; i <= totalIssues; i++) {
-                let blockClass = 'progress-block';
-                if (i <= comic.readIssues) {
-                    blockClass += ' read';
+            if (isMobile && !expanded) {
+                // Кнопка для раскрытия
+                blocks.push(`
+                    <button class="btn btn-secondary mobile-progress-toggle" style="margin:8px 0; font-size:15px; padding:10px 0; width:100%;" onclick="toggleMobileProgressBlocks(${comic.id})">Показать номера</button>
+                `);
+            }
+            if (!isMobile || expanded) {
+                for (let i = 1; i <= totalIssues; i++) {
+                    let blockClass = 'progress-block';
+                    if (i <= comic.readIssues) {
+                        blockClass += ' read';
+                    }
+                    blocks.push(`
+                        <div class="${blockClass}" 
+                             data-comic-id="${comic.id}" 
+                             data-issue="${i}"
+                             onclick="updateComicProgressFromBlock(${comic.id}, ${i})"
+                             title="Выпуск ${i}"
+                             style="width: ${blockWidth};">
+                            ${i}
+                        </div>
+                    `);
                 }
-                
-                blocks.push(`
-                    <div class="${blockClass}" 
-                         data-comic-id="${comic.id}" 
-                         data-issue="${i}"
-                         onclick="updateComicProgressFromBlock(${comic.id}, ${i})"
-                         title="Выпуск ${i}"
-                         style="width: ${blockWidth};">
-                        ${i}
-                    </div>
-                `);
+                if (comic.totalIssues > 100) {
+                    blocks.push(`
+                        <div class="progress-block" style="background: rgba(100, 116, 139, 0.5); cursor: default; width: ${blockWidth};" title="Всего выпусков: ${comic.totalIssues}">
+                            +${comic.totalIssues - 100}
+                        </div>
+                    `);
+                }
+                if (isMobile) {
+                    blocks.push(`
+                        <button class="btn btn-secondary mobile-progress-toggle" style="margin:8px 0; font-size:15px; padding:10px 0; width:100%;" onclick="toggleMobileProgressBlocks(${comic.id})">Скрыть номера</button>
+                    `);
+                }
             }
-            
-            if (comic.totalIssues > 100) {
-                blocks.push(`
-                    <div class="progress-block" style="background: rgba(100, 116, 139, 0.5); cursor: default; width: ${blockWidth};" title="Всего выпусков: ${comic.totalIssues}">
-                        +${comic.totalIssues - 100}
-                    </div>
-                `);
-            }
-            
             return blocks.join('');
         }
 
@@ -3659,7 +3630,7 @@ function getSortedComicsForList(listName) {
             if (isMobile && !expanded) {
                 // Кнопка для раскрытия
                 blocks.push(`
-                    <button class="btn btn-secondary mobile-progress-toggle" style="margin-bottom:6px; font-size:13px; padding:6px 0; width:100%;" onclick="toggleMobileProgressBlocks(${comic.id})">Показать номера</button>
+                    <button class="btn btn-secondary mobile-progress-toggle" style="margin:8px 0; font-size:15px; padding:10px 0; width:100%;" onclick="toggleMobileProgressBlocks(${comic.id})">Показать номера</button>
                 `);
             }
             if (!isMobile || expanded) {
@@ -3688,7 +3659,7 @@ function getSortedComicsForList(listName) {
                 }
                 if (isMobile) {
                     blocks.push(`
-                        <button class="btn btn-secondary mobile-progress-toggle" style="margin-top:6px; font-size:13px; padding:6px 0; width:100%;" onclick="toggleMobileProgressBlocks(${comic.id})">Скрыть номера</button>
+                        <button class="btn btn-secondary mobile-progress-toggle" style="margin:8px 0; font-size:15px; padding:10px 0; width:100%;" onclick="toggleMobileProgressBlocks(${comic.id})">Скрыть номера</button>
                     `);
                 }
             }
