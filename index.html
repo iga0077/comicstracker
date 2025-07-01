@@ -1576,12 +1576,25 @@
                 document.getElementById('loginBtn').style.display = 'inline-block';
                 document.getElementById('logoutBtn').style.display = 'none';
                 document.getElementById('userName').textContent = '';
-                // Очищаем данные (можно оставить localStorage как fallback)
-                // comicsData = [];
-                // readingLists = [];
-                // ...
-                // renderCollection();
-                // renderReadingLists();
+                // ОЧИЩАЕМ ВСЕ ДАННЫЕ
+                comicsData = [];
+                readingLists = [];
+                listOrders = {};
+                listViewModes = {};
+                appSettings = {};
+                currentlyReading = {};
+                expandedLists = new Set();
+                // Очищаем localStorage (если не нужен оффлайн-режим)
+                localStorage.removeItem('marvel-comics-data');
+                localStorage.removeItem('marvel-reading-lists');
+                localStorage.removeItem('marvel-list-orders');
+                localStorage.removeItem('marvel-list-view-modes');
+                localStorage.removeItem('marvel-app-settings');
+                localStorage.removeItem('marvel-currently-reading');
+                localStorage.removeItem('marvel-list-sort-modes');
+                // Обновляем интерфейс
+                renderCollection();
+                renderReadingLists();
             }
         });
 
