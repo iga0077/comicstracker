@@ -2270,56 +2270,27 @@
 					readIssues: 0,
 					isRead: false
 				};
-				
 				comicsData.push(copiedComic);
-				
 				// Добавляем в те же списки чтения
 				if (originalComic.readingLists && originalComic.readingLists.length > 0) {
 					originalComic.readingLists.forEach(listName => {
 						if (!listOrders[listName]) {
 							listOrders[listName] = [];
 						}
-						
-						// Для скопированного комикса находим правильную позицию по году
-						const newYear = parseInt(copiedComic.years.split('-')[0]) || 0;
-						console.log('Добавляем скопированный комикс', copiedComic.title, 'в список', listName, 'год:', newYear);
-						
-						// Получаем существующие комиксы в списке
-						const existingComics = comicsData.filter(comic => 
-							comic.readingLists && comic.readingLists.includes(listName) && comic.id !== copiedComic.id
-						);
-						
-						const tempOrdered = [];
-						let inserted = false;
-						
-						listOrders[listName].forEach(id => {
-							const comic = existingComics.find(c => c.id === id);
-							if (comic) {
-								const existingYear = parseInt(comic.years.split('-')[0]) || 0;
-								
-								if (!inserted && newYear < existingYear) {
-									tempOrdered.push(copiedComic.id);
-									inserted = true;
-									console.log('Вставили скопированный комикс перед', comic.title);
-								}
-								tempOrdered.push(id);
-							}
-						});
-						
-						if (!inserted) {
-							tempOrdered.push(copiedComic.id);
-							console.log('Добавили скопированный комикс в конец списка');
+						// Находим индекс оригинала в порядке списка
+						const idx = listOrders[listName].indexOf(originalComic.id);
+						if (idx !== -1) {
+							// Вставляем копию сразу после оригинала
+							listOrders[listName].splice(idx + 1, 0, copiedComic.id);
+						} else {
+							// Если оригинал не найден, просто в конец
+							listOrders[listName].push(copiedComic.id);
 						}
-						
-						listOrders[listName] = tempOrdered;
 					});
 				}
-				
 				saveData();
 				renderCollection();
 				renderReadingLists();
-				
-				// Показываем уведомление
 				alert('Комикс успешно скопирован!');
 			}
 		}
