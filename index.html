@@ -3798,26 +3798,43 @@ function getSortedComicsForList(listName) {
         function deleteAllData() {
             if (confirm('⚠️ ВНИМАНИЕ!\n\nЭто действие полностью удалит ВСЕ данные приложения. Восстановить данные будет невозможно!\n\nРекомендуется сначала сделать экспорт данных.\n\nВы уверены, что хотите продолжить?')) {
                 if (confirm('Последнее предупреждение! ВСЕ ДАННЫЕ БУДУТ УДАЛЕНЫ НАВСЕГДА! Продолжить очистку?')) {
-                    comicsData = [];
-                    readingLists = [];
-                    listOrders = {};
-                    listViewModes = {};
-                    appSettings = {};
-                    currentlyReading = {};
-                    expandedLists = new Set();
-                    localStorage.removeItem('marvel-comics-data');
-                    localStorage.removeItem('marvel-reading-lists');
-                    localStorage.removeItem('marvel-list-orders');
-                    localStorage.removeItem('marvel-list-view-modes');
-                    localStorage.removeItem('marvel-app-settings');
-                    localStorage.removeItem('marvel-currently-reading');
-                    localStorage.removeItem('marvel-list-sort-modes');
-                    renderCollection();
-                    renderReadingLists();
-                    alert('✅ Все данные успешно удалены!');
-                    document.getElementById('sidebar').classList.remove('open');
+                    const user = auth.currentUser;
+                    if (user) {
+                        db.collection('comics').doc(user.uid).delete().then(() => {
+                            clearLocalData();
+                            alert('✅ Все данные успешно удалены из облака и локально!');
+                            document.getElementById('sidebar').classList.remove('open');
+                        }).catch((error) => {
+                            clearLocalData();
+                            alert('⚠️ Ошибка при удалении из облака, но локальные данные удалены.\n' + error.message);
+                            document.getElementById('sidebar').classList.remove('open');
+                        });
+                    } else {
+                        clearLocalData();
+                        alert('✅ Все данные успешно удалены!');
+                        document.getElementById('sidebar').classList.remove('open');
+                    }
                 }
             }
+        }
+
+        function clearLocalData() {
+            comicsData = [];
+            readingLists = [];
+            listOrders = {};
+            listViewModes = {};
+            appSettings = {};
+            currentlyReading = {};
+            expandedLists = new Set();
+            localStorage.removeItem('marvel-comics-data');
+            localStorage.removeItem('marvel-reading-lists');
+            localStorage.removeItem('marvel-list-orders');
+            localStorage.removeItem('marvel-list-view-modes');
+            localStorage.removeItem('marvel-app-settings');
+            localStorage.removeItem('marvel-currently-reading');
+            localStorage.removeItem('marvel-list-sort-modes');
+            renderCollection();
+            renderReadingLists();
         }
         // --- EXPORT READING LIST TO JSON ---
         function exportReadingListToJson(listName) {
