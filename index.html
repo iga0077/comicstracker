@@ -60,7 +60,7 @@
             padding-top: 6px;
             padding-bottom: 6px;
             font-size: 14px;
-        }    
+        }
 
         .tabs {
             position: fixed;
@@ -1579,9 +1579,9 @@
     <div class="header">
         <h1>🕷️ Marvel Comics Tracker</h1>
         <div class="header-right">
-            <button id="loginBtn" class="btn btn-secondary" onclick="loginWithGoogle()">Войти через Google</button>
-            <span id="userName" style="margin-left:10px;"></span>
-        </div>
+                <button id="loginBtn" class="btn btn-secondary" onclick="loginWithGoogle()">Войти через Google</button>
+                <span id="userName" style="margin-left:10px;"></span>
+            </div>
         <button class="settings-btn" onclick="toggleSidebar()" title="Настройки">⚙️</button>
         <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImport(event)">
     </div>
@@ -3335,6 +3335,10 @@ function getSortedComicsForList(listName) {
                                         }
                                     }
                                 });
+                                // Восстановить порядок, если есть order
+                                if (importedData.order && Array.isArray(importedData.order)) {
+                                    listOrders[importedData.listName] = importedData.order.slice();
+                                }
                                 saveData();
                                 renderCollection();
                                 renderReadingLists();
@@ -3820,7 +3824,8 @@ function getSortedComicsForList(listName) {
             const listComics = getSortedComicsForList(listName);
             const exportData = {
                 comicsData: listComics,
-                listName: listName
+                listName: listName,
+                order: listOrders[listName] ? [...listOrders[listName]] : listComics.map(c => c.id)
             };
             const dataStr = JSON.stringify(exportData, null, 2);
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
