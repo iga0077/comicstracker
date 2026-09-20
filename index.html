@@ -402,8 +402,8 @@
         }
 
         .reading-list-item.read {
-            opacity: 1;
-            background: rgba(34, 197, 94, 0.25);
+            opacity: 0.6;
+            background: rgba(34, 197, 94, 0.2);
             border-color: #22c55e;
         }
 
@@ -1868,19 +1868,49 @@
         }
 
         .progress-bar {
-            background: rgba(255,255,255,0.08) !important;
+            background: #334155 !important;
             border: 2px solid #000;
             border-radius: 0 !important;
             height: 10px !important;
         }
 
+        .progress-indicator {
+            background: var(--bg-panel-2) !important;
+            border: 2px solid #000 !important;
+            box-shadow: 2px 2px 0 #000;
+            border-radius: 0 !important;
+            padding: 8px !important;
+        }
+
         .progress-fill {
-            background: linear-gradient(90deg, var(--cyan), #67e8f9) !important;
+            background: linear-gradient(90deg, var(--yellow), #ffe566) !important;
             border-radius: 0 !important;
         }
 
-        .comic-card.read .progress-fill, .comic-list-item.read .progress-fill {
+        .comic-card.read .progress-fill,
+        .comic-list-item.read .progress-fill,
+        .reading-list-grid-item.read .reading-list-grid-progress .progress-fill {
             background: linear-gradient(90deg, var(--green), #86efac) !important;
+        }
+
+        .reading-list-grid-progress {
+            background: var(--bg-panel-2) !important;
+            border: 2px solid #000 !important;
+            box-shadow: 2px 2px 0 #000;
+            border-radius: 0 !important;
+            padding: 8px !important;
+        }
+
+        .reading-list-grid-progress .progress-bar {
+            background: #334155 !important;
+            border: 2px solid #000 !important;
+            border-radius: 0 !important;
+            height: 10px !important;
+        }
+
+        .reading-list-grid-progress .progress-fill {
+            background: linear-gradient(90deg, var(--yellow), #ffe566) !important;
+            border-radius: 0 !important;
         }
 
         .action-btn {
@@ -1923,8 +1953,8 @@
         .reading-list-grid-item.read,
         .comic-card.read,
         .comic-list-item.read {
-            opacity: 1 !important;
-            background: rgba(74, 222, 128, 0.28) !important;
+            opacity: 0.6 !important;
+            background: rgba(74, 222, 128, 0.22) !important;
             border-color: var(--green) !important;
             box-shadow: 5px 5px 0 #000 !important;
         }
@@ -1933,7 +1963,8 @@
         .reading-list-grid-item.read:hover,
         .comic-card.read:hover,
         .comic-list-item.read:hover {
-            background: rgba(74, 222, 128, 0.38) !important;
+            opacity: 0.72 !important;
+            background: rgba(74, 222, 128, 0.28) !important;
             border-color: #86efac !important;
         }
 
@@ -1948,18 +1979,36 @@
         }
 
         .reading-list-title-text,
-        .reading-list-content-text {
+        .reading-list-content-text,
+        .comic-title,
+        .comic-content,
+        .comic-list-info .comic-title,
+        .comic-list-info .comic-content,
+        .reading-list-grid-title,
+        .reading-list-grid-content {
             background: var(--bg-panel-2) !important;
             border: 2px solid #000 !important;
             border-radius: 0 !important;
             color: var(--text) !important;
+            box-shadow: 2px 2px 0 #000;
+        }
+
+        .comic-title,
+        .comic-list-info .comic-title,
+        .reading-list-grid-title {
+            padding: 8px 12px;
+            margin-bottom: 8px;
+        }
+
+        .comic-content,
+        .comic-list-info .comic-content,
+        .reading-list-grid-content {
+            padding: 8px 12px;
+            margin-bottom: 8px;
         }
 
         .form-group label,
-        .comic-content,
-        .comic-list-info .comic-content,
         .reading-list-progress-text,
-        .reading-list-grid-content,
         .reading-list-grid-meta,
         .reading-list-card-meta,
         .progress-text {
