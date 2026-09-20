@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🕷️ Marvel Comics Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=2">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=2">
+    <link rel="apple-touch-icon" sizes="192x192" href="favicon-192.png?v=2">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <title>Comics Tracker — Marvel</title>
     <style>
         * {
             margin: 0;
@@ -1556,6 +1563,947 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
+
+        /* COMIC_DARK_THEME_V2 */
+        :root {
+            --bg-deep: #070d18;
+            --bg-panel: #0f172a;
+            --bg-panel-2: #131f35;
+            --ink: #0a0a0a;
+            --line: #000000;
+            --text: #eef2ff;
+            --muted: #94a3b8;
+            --yellow: #ffd400;
+            --yellow-dark: #e6bc00;
+            --red: #ff3b30;
+            --cyan: #22d3ee;
+            --green: #4ade80;
+            --violet: #a78bfa;
+            --skew: -10deg;
+            --border-heavy: 3px solid var(--line);
+            --shadow-hard: 4px 4px 0 var(--line);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(ellipse 120% 80% at 50% 100%, rgba(255, 59, 48, 0.08), transparent 55%),
+                radial-gradient(circle at 10% 20%, rgba(34, 211, 238, 0.06), transparent 40%),
+                linear-gradient(180deg, #070d18 0%, #0b1220 45%, #0f172a 100%);
+            color: var(--text);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.07;
+            background-image: radial-gradient(circle, #fff 0.8px, transparent 0.8px);
+            background-size: 7px 7px;
+            z-index: 0;
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000 !important;
+            background: rgba(7, 13, 24, 0.92);
+            border-bottom: var(--border-heavy);
+            box-shadow: 0 4px 0 rgba(0,0,0,0.45);
+            backdrop-filter: blur(12px);
+        }
+
+        .header h1 {
+            font-family: 'Oswald', 'Inter', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            transform: skewX(-8deg);
+            background: none;
+            -webkit-text-fill-color: var(--yellow);
+            color: var(--yellow);
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .tabs {
+            position: fixed !important;
+            top: 52px;
+            left: 0;
+            right: 0;
+            z-index: 999 !important;
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: var(--border-heavy);
+            box-shadow: 0 3px 0 rgba(0,0,0,0.35);
+        }
+
+        .tab-button {
+            position: relative;
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-size: 15px;
+            color: var(--muted);
+            border-bottom: none !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-button::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            top: 8px;
+            bottom: 8px;
+            background: transparent;
+            border: var(--border-heavy);
+            border-color: transparent;
+            transform: skewX(var(--skew));
+            box-shadow: none;
+            z-index: -1;
+            transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .tab-button:hover {
+            color: var(--text) !important;
+            background: transparent !important;
+        }
+
+        .tab-button:hover::before {
+            background: rgba(255, 212, 0, 0.22);
+            border-color: #000;
+            box-shadow: var(--shadow-hard);
+        }
+
+        .tab-button.active {
+            color: #000 !important;
+            background: transparent !important;
+        }
+
+        .tab-button.active::before {
+            background: var(--yellow);
+            border-color: #000;
+            box-shadow: var(--shadow-hard);
+        }
+
+        .tab-indicator {
+            display: none;
+        }
+
+        .btn:not(.action-btn) {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            border-radius: 0;
+            border: none;
+            background: transparent;
+            isolation: isolate;
+        }
+
+        .sidebar .btn,
+        .sidebar button,
+        .view-toggle button,
+        .reading-list-sort-toggle button,
+        .reading-list-view-toggle button,
+        .tab-button,
+        .settings-btn,
+        .scroll-btn,
+        .action-btn,
+        .mobile-progress-toggle {
+            text-transform: none;
+            letter-spacing: normal;
+            font-family: inherit;
+        }
+
+        .btn:not(.action-btn)::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            transform: skewX(var(--skew));
+            border: var(--border-heavy);
+            box-shadow: var(--shadow-hard);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .btn-primary {
+            color: #000;
+        }
+
+        .btn-primary::before {
+            background: linear-gradient(180deg, #ffe566 0%, var(--yellow) 100%);
+        }
+
+        .btn-primary:hover::before {
+            transform: skewX(var(--skew)) translate(-2px, -2px);
+            box-shadow: 6px 6px 0 var(--line);
+        }
+
+        .btn-secondary {
+            color: var(--text);
+        }
+
+        .btn-secondary::before {
+            background: var(--bg-panel-2);
+        }
+
+        .btn-secondary:hover::before {
+            background: #1e293b;
+            transform: skewX(var(--skew)) translate(-1px, -1px);
+        }
+
+        .search-box, .sort-select {
+            background: var(--bg-panel);
+            border: var(--border-heavy);
+            border-radius: 0;
+            color: var(--text);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 3px 3px 0 rgba(0,0,0,0.5);
+            transform: skewX(-4deg);
+        }
+
+        .search-box:focus, .sort-select:focus {
+            border-color: var(--yellow);
+            box-shadow: 3px 3px 0 #000, 0 0 0 2px var(--yellow);
+        }
+
+        .view-toggle, .reading-list-sort-toggle, .reading-list-view-toggle {
+            border: var(--border-heavy);
+            box-shadow: var(--shadow-hard);
+            background: var(--bg-panel);
+            border-radius: 0;
+            overflow: visible;
+        }
+
+        .view-toggle button, .reading-list-sort-toggle button, .reading-list-view-toggle button {
+            color: var(--muted);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .view-toggle button.active, .reading-list-sort-toggle button.active, .reading-list-view-toggle button.active {
+            background: var(--yellow) !important;
+            color: #000 !important;
+            font-weight: 700;
+        }
+
+        .comic-card, .comic-list-item, .reading-list-card, .reading-list-content, .reading-list-grid-item, .reading-list-item {
+            background: var(--bg-panel) !important;
+            border: var(--border-heavy) !important;
+            border-radius: 0 !important;
+            box-shadow: var(--shadow-hard) !important;
+            backdrop-filter: none !important;
+        }
+
+        .comic-card:hover, .comic-list-item:hover, .reading-list-card:hover {
+            transform: translate(-2px, -2px);
+        }
+
+        .reading-list-card.active {
+            background: #1a2740 !important;
+            border-color: var(--yellow) !important;
+            box-shadow: 6px 6px 0 #000 !important;
+        }
+
+        .reading-list-card-title, .comic-title, .reading-list-title-text, .reading-list-grid-title {
+            color: var(--text) !important;
+            font-family: 'Oswald', sans-serif;
+            letter-spacing: 0.02em;
+        }
+
+        .stat-card {
+            position: relative;
+            border: var(--border-heavy);
+            border-radius: 0;
+            box-shadow: var(--shadow-hard);
+            overflow: hidden;
+            transform: skewX(-6deg);
+            background: var(--bg-panel-2) !important;
+        }
+
+        .stat-card > * {
+            transform: skewX(6deg);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 42%;
+            opacity: 0.35;
+            background-image: radial-gradient(circle, #fff 1px, transparent 1px);
+            background-size: 6px 6px;
+            pointer-events: none;
+        }
+
+        .stat-card:nth-child(1)::before { background-color: rgba(74, 222, 128, 0.25); }
+        .stat-card:nth-child(2)::before { background-color: rgba(255, 212, 0, 0.25); }
+        .stat-card:nth-child(3)::before { background-color: rgba(255, 59, 48, 0.22); }
+        .stat-card:nth-child(4)::before { background-color: rgba(34, 211, 238, 0.22); }
+
+        .stat-value {
+            color: var(--text);
+            font-family: 'Oswald', sans-serif;
+            font-size: 28px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.08) !important;
+            border: 2px solid #000;
+            border-radius: 0 !important;
+            height: 10px !important;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--cyan), #67e8f9) !important;
+            border-radius: 0 !important;
+        }
+
+        .comic-card.read .progress-fill, .comic-list-item.read .progress-fill {
+            background: linear-gradient(90deg, var(--green), #86efac) !important;
+        }
+
+        .action-btn {
+            border: 2px solid #000 !important;
+            border-radius: 0 !important;
+            box-shadow: 2px 2px 0 #000;
+            transform: skewX(-8deg);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn [data-lucide], .action-btn .ico {
+            transform: skewX(8deg);
+        }
+
+        .edit-btn { background: var(--yellow) !important; color: #000 !important; }
+        .copy-btn { background: var(--violet) !important; color: #000 !important; }
+        .read-btn { background: var(--green) !important; color: #000 !important; }
+        .delete-btn { background: var(--red) !important; color: #fff !important; }
+
+        .bookmark-action-btn.active {
+            background: var(--yellow) !important;
+            color: #000 !important;
+        }
+
+        .add-comic-btn {
+            position: fixed !important;
+            bottom: 20px !important;
+            right: 90px !important;
+            z-index: 1001 !important;
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 0 !important;
+            transform: skewX(-10deg);
+            background: var(--yellow) !important;
+            color: #000 !important;
+            border: var(--border-heavy) !important;
+            box-shadow: var(--shadow-hard) !important;
+            font-size: 0;
+        }
+
+        .add-comic-btn .ico, .add-comic-btn [data-lucide] {
+            width: 28px;
+            height: 28px;
+            stroke-width: 3px;
+        }
+
+        .settings-btn {
+            position: fixed !important;
+            top: 10px;
+            right: 25px;
+            z-index: 3000 !important;
+            border: var(--border-heavy) !important;
+            border-radius: 0 !important;
+            background: var(--bg-panel-2) !important;
+            color: var(--text) !important;
+            box-shadow: var(--shadow-hard) !important;
+            transform: skewX(-8deg);
+        }
+
+        .scroll-buttons {
+            position: fixed !important;
+            right: 20px !important;
+            bottom: 20px !important;
+            z-index: 1000 !important;
+        }
+
+        .scroll-btn {
+            border: var(--border-heavy) !important;
+            border-radius: 0 !important;
+            background: var(--bg-panel-2) !important;
+            color: var(--text) !important;
+            box-shadow: var(--shadow-hard) !important;
+            transform: skewX(-8deg);
+        }
+
+        .settings-btn:hover, .scroll-btn:hover {
+            background: var(--yellow) !important;
+            color: #000 !important;
+            transform: skewX(-8deg) translate(-1px, -1px);
+        }
+
+        .modal {
+            position: fixed !important;
+            z-index: 1100 !important;
+        }
+
+        .modal-content {
+            background: var(--bg-panel) !important;
+            border: var(--border-heavy) !important;
+            border-radius: 0 !important;
+            box-shadow: 10px 10px 0 #000 !important;
+        }
+
+        .modal h3,
+        #modalTitle {
+            font-family: 'Oswald', sans-serif !important;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text) !important;
+            transform: none;
+        }
+
+        .empty-state {
+            background: var(--bg-panel);
+            border: 2px dashed rgba(255,255,255,0.25);
+            border-radius: 0;
+        }
+
+        .empty-state h3 {
+            color: var(--text);
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .sidebar {
+            position: fixed !important;
+            top: 0 !important;
+            right: -320px;
+            width: 320px !important;
+            height: 100vh !important;
+            z-index: 2000 !important;
+            background: rgba(7, 13, 24, 0.98) !important;
+            border-left: var(--border-heavy) !important;
+            padding: 100px 25px 25px !important;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar.open {
+            right: 0 !important;
+        }
+
+        .sidebar button {
+            position: relative;
+            width: 100%;
+            border: var(--border-heavy) !important;
+            border-radius: 0 !important;
+            background: var(--bg-panel-2) !important;
+            color: var(--text) !important;
+            box-shadow: var(--shadow-hard);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: none;
+        }
+
+        .sidebar button::before,
+        .sidebar .btn::before {
+            display: none !important;
+        }
+
+        .sidebar button:hover {
+            transform: translate(-2px, -2px);
+            background: #1e293b !important;
+        }
+
+        .sidebar button[style*="ef4444"], .sidebar .btn-danger {
+            background: var(--red) !important;
+            color: #fff !important;
+        }
+
+        .ico, [data-lucide] {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2.25px;
+            flex-shrink: 0;
+        }
+
+        .content-header h2, .reading-list-view-controls h3 {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text) !important;
+        }
+
+        #userName {
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        body.sidebar-open::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 1999;
+            pointer-events: auto;
+        }
+
+        body.sidebar-open .settings-btn {
+            right: 340px;
+            z-index: 3001 !important;
+        }
+
+        .sidebar {
+            right: -320px !important;
+        }
+
+        .sidebar.open {
+            right: 0 !important;
+        }
+
+        .reading-list-mode-toggle .btn {
+            min-width: 42px;
+            padding: 6px 12px !important;
+        }
+
+        .reading-list-mode-toggle .btn::before {
+            transform: skewX(-6deg);
+        }
+
+        .view-toggle button::before,
+        .reading-list-sort-toggle button::before,
+        .reading-list-view-toggle button::before {
+            display: none !important;
+        }
+
+        .btn:not(.action-btn) {
+            overflow: visible !important;
+        }
+
+        .tab-buttons {
+            overflow: visible;
+            padding: 6px 0 10px;
+        }
+
+        .tabs {
+            overflow: visible;
+        }
+
+        .reading-list-view-controls {
+            overflow: visible;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .btn-slab::before {
+            display: none !important;
+        }
+
+        .btn-slab {
+            background: var(--bg-panel-2) !important;
+            border: var(--border-heavy) !important;
+            box-shadow: var(--shadow-hard);
+            transform: skewX(-8deg);
+            overflow: visible !important;
+            padding: 10px 14px !important;
+            min-height: 40px;
+        }
+
+        .btn-slab:hover {
+            transform: skewX(-8deg) translate(-1px, -1px);
+            box-shadow: 5px 5px 0 var(--line);
+        }
+
+        .reading-list-sort-toggle {
+            border-radius: 0 !important;
+            overflow: visible !important;
+            height: auto !important;
+            background: var(--bg-panel) !important;
+            transform: skewX(-8deg);
+        }
+
+        .reading-list-sort-toggle button {
+            border-radius: 0 !important;
+            height: 38px !important;
+            width: auto !important;
+            min-width: 88px;
+            padding: 8px 14px !important;
+            border-right: 2px solid #000 !important;
+        }
+
+        .reading-list-sort-toggle button:last-child {
+            border-right: none !important;
+        }
+
+        .view-toggle,
+        .reading-list-view-toggle {
+            overflow: visible !important;
+            transform: skewX(-8deg);
+        }
+
+        .view-toggle button,
+        .reading-list-view-toggle button {
+            min-width: 42px;
+            min-height: 38px;
+            padding: 8px 12px !important;
+        }
+
+        .btn:not(.action-btn)::before {
+            inset: -1px;
+        }
+
+        .reading-list-mode-toggle {
+            overflow: visible;
+        }
+
+        /* Глобально: без скруглений */
+        html *, html *::before, html *::after {
+            border-radius: 0 !important;
+        }
+
+        .field-skew,
+        .field-skew-inline {
+            transform: skewX(-10deg);
+            display: block;
+            border: 3px solid #000;
+            background: var(--bg-panel, #0f172a);
+            box-shadow: 3px 3px 0 #000;
+            overflow: visible;
+            transition: box-shadow 0.15s ease, border-color 0.15s ease;
+        }
+
+        .field-skew-inline {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .field-skew:focus-within,
+        .field-skew-inline:focus-within {
+            border-color: var(--yellow, #ffd400);
+            box-shadow: 4px 4px 0 #000;
+        }
+
+        .field-skew > input,
+        .field-skew > textarea,
+        .field-skew-inline > input,
+        .field-skew-inline > .search-box {
+            transform: skewX(10deg);
+            width: 100%;
+            display: block;
+        }
+
+        .field-input,
+        .field-skew > input,
+        .field-skew > textarea,
+        .field-skew-inline > .search-box,
+        .list-input-group .field-skew > input,
+        .form-group .field-skew > input,
+        .form-group .field-skew > textarea,
+        .progress-inputs .field-skew > input {
+            background: transparent;
+            border: none !important;
+            color: var(--text, #eef2ff);
+            padding: 11px 14px;
+            font-size: 14px;
+            font-family: inherit;
+            box-shadow: none !important;
+            outline: none;
+        }
+
+        .field-skew > textarea {
+            min-height: 88px;
+            resize: vertical;
+        }
+
+        .progress-inputs .field-skew {
+            display: inline-block;
+            min-width: 72px;
+        }
+
+        .controls .field-skew-inline {
+            min-width: 250px;
+        }
+
+        #collection .controls,
+        .content-header .controls {
+            overflow: visible;
+            position: relative;
+            z-index: 20;
+        }
+
+        .custom-select {
+            position: relative;
+            display: inline-block;
+            min-width: 250px;
+            transform: skewX(-8deg);
+            vertical-align: middle;
+            z-index: 1;
+        }
+
+        .custom-select.open {
+            z-index: 12040;
+        }
+
+        .custom-select-trigger {
+            width: 100%;
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 14px;
+            border: 3px solid #000;
+            background: var(--bg-panel);
+            color: var(--text);
+            box-shadow: 3px 3px 0 #000;
+            cursor: pointer;
+            font: inherit;
+            font-size: 14px;
+            transform: skewX(8deg);
+        }
+
+        .custom-select-trigger span {
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .custom-select.open .custom-select-trigger {
+            border-color: var(--yellow);
+            box-shadow: 3px 3px 0 #000, 0 0 0 2px var(--yellow);
+        }
+
+        .custom-select-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            border: 3px solid #000;
+            background: var(--bg-panel-2);
+            box-shadow: 5px 5px 0 #000;
+            z-index: 12050;
+            max-height: 260px;
+            overflow-y: auto;
+            transform: skewX(8deg);
+        }
+
+        .custom-select-menu.custom-select-menu-floating {
+            position: fixed;
+            right: auto;
+            z-index: 12050;
+        }
+
+        .modal-content .field-skew,
+        .modal-content .field-skew-inline {
+            margin-top: 4px;
+        }
+
+        #unsavedConfirmModal {
+            z-index: 1200;
+        }
+
+        #unsavedConfirmModal .modal-content {
+            max-width: 460px;
+        }
+
+        #unsavedConfirmModal p {
+            color: var(--muted);
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .custom-select-menu[hidden] {
+            display: none !important;
+        }
+
+        .custom-select-option {
+            padding: 10px 12px;
+            cursor: pointer;
+            color: var(--text);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 14px;
+        }
+
+        .custom-select-option:last-child {
+            border-bottom: none;
+        }
+
+        .custom-select-option:hover,
+        .custom-select-option.active {
+            background: var(--yellow);
+            color: #000;
+            font-weight: 600;
+        }
+
+        select.select-native-hidden {
+            position: absolute !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            width: 1px !important;
+            height: 1px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+        }
+
+        .progress-range {
+            margin: 12px 0 16px;
+            padding: 4px 0;
+        }
+
+        .progress-slider-group .progress-slider {
+            --progress-pct: 0%;
+            width: 100%;
+            height: 22px;
+            margin: 0;
+            padding: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent !important;
+            cursor: pointer;
+        }
+
+        .progress-slider-group .progress-slider:focus,
+        .progress-slider-group .progress-slider:focus-visible {
+            outline: none;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .progress-slider-group .progress-slider:focus-visible::-webkit-slider-thumb {
+            outline: 2px solid var(--yellow);
+            outline-offset: 2px;
+        }
+
+        .progress-slider-group .progress-slider::-webkit-slider-runnable-track {
+            height: 14px;
+            border: 3px solid #000;
+            box-shadow: 3px 3px 0 #000;
+            background: linear-gradient(
+                to right,
+                var(--yellow) 0%,
+                var(--yellow) var(--progress-pct),
+                #334155 var(--progress-pct),
+                #334155 100%
+            );
+        }
+
+        .progress-slider-group .progress-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            margin-top: -7px;
+            border-radius: 0 !important;
+            background: var(--yellow) !important;
+            border: 3px solid #000 !important;
+            box-shadow: 3px 3px 0 #000 !important;
+            cursor: grab;
+        }
+
+        .progress-slider-group .progress-slider:active::-webkit-slider-thumb {
+            cursor: grabbing;
+        }
+
+        .progress-slider-group .progress-slider::-moz-range-track {
+            height: 14px;
+            border: 3px solid #000;
+            box-shadow: 3px 3px 0 #000;
+            background: #334155;
+        }
+
+        .progress-slider-group .progress-slider::-moz-range-progress {
+            height: 14px;
+            background: var(--yellow);
+            border: none;
+        }
+
+        .progress-slider-group .progress-slider::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 0 !important;
+            background: var(--yellow) !important;
+            border: 3px solid #000 !important;
+            box-shadow: 3px 3px 0 #000 !important;
+            cursor: grab;
+        }
+
+        .list-input-group {
+            display: flex;
+            align-items: stretch;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            gap: 12px;
+            width: fit-content;
+            max-width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .list-input-group .field-skew {
+            flex: 0 0 auto;
+            width: min(400px, 100vw - 48px);
+            max-width: 400px;
+        }
+
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: var(--yellow, #ffd400) #0f172a;
+        }
+
+        html::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        html::-webkit-scrollbar-track {
+            background: #0f172a;
+            border-left: 2px solid #000;
+        }
+
+        html::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #ffe566 0%, var(--yellow, #ffd400) 100%);
+            border: 2px solid #000;
+            box-shadow: 2px 2px 0 #000;
+        }
+
+        html::-webkit-scrollbar-thumb:hover {
+            background: var(--yellow, #ffd400);
+        }
+
+        html::-webkit-scrollbar-corner {
+            background: #0f172a;
+        }
+    
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -1577,26 +2525,26 @@
 </head>
 <body>
     <div class="header">
-        <h1>🕷️ Marvel Comics Tracker</h1>
+        <h1>Comics Tracker</h1>
         <div class="header-right">
                 <button id="loginBtn" class="btn btn-secondary" onclick="loginWithGoogle()">Войти через Google</button>
                 <span id="userName" style="margin-left:10px;"></span>
             </div>
-        <button class="settings-btn" onclick="toggleSidebar()" title="Настройки">⚙️</button>
+        <button class="settings-btn" onclick="toggleSidebar()" title="Настройки"><i data-lucide="settings"></i></button>
         <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImport(event)">
     </div>
     <div class="sidebar" id="sidebar">
-        <button onclick="exportData()">📤 Экспорт всех данных (JSON)</button>
-        <button onclick="importData()">📥 Импорт данных</button>
-        <button onclick="resetAllReadStatus()">🔄 Сбросить прочитанное</button>
-        <button onclick="deleteAllData()" style="background: linear-gradient(135deg, #ef4444, #dc2626);">🗑️ Удалить все данные</button>
+        <button onclick="exportData()"><i data-lucide="upload"></i> Экспорт всех данных (JSON)</button>
+        <button onclick="importData()"><i data-lucide="download"></i> Импорт данных</button>
+        <button onclick="resetAllReadStatus()"><i data-lucide="rotate-ccw"></i> Сбросить прочитанное</button>
+        <button class="btn-danger" onclick="deleteAllData()" style="background: linear-gradient(135deg, #ef4444, #dc2626);"><i data-lucide="trash-2"></i> Удалить все данные</button>
         <button id="logoutBtn" class="btn btn-secondary" onclick="logout()" style="display:none; margin-top: 20px;">Выйти</button>
     </div>
 
     <div class="tabs">
         <div class="tab-buttons">
-            <button class="tab-button active" onclick="switchTab('reading-lists')">📖 Списки чтения</button>
-            <button class="tab-button" onclick="switchTab('collection')">📚 Коллекция</button>
+            <button class="tab-button active" onclick="switchTab('reading-lists')"><i data-lucide="book-open"></i> Списки чтения</button>
+            <button class="tab-button" onclick="switchTab('collection')"><i data-lucide="library"></i> Коллекция</button>
             <div class="tab-indicator"></div>
         </div>
     </div>
@@ -1605,15 +2553,15 @@
         <!-- Списки чтения -->
         <div id="reading-lists" class="tab-content active">
             <div class="content-header">
-                <h2 style="color: #f1f5f9; font-size: 24px; margin: 0;">Списки чтения</h2>
+                <h2 style="color: #eef2ff; font-size: 24px; margin: 0;">Списки чтения</h2>
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <div class="reading-list-mode-toggle" id="readingListModeToggle" style="display: flex;">
-                        <button id="modeSingleBtn" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; border-radius: 8px 0 0 8px;" onclick="setReadingListsMode('single')">1</button>
-                        <button id="modeDoubleBtn" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; border-radius: 0 8px 8px 0;" onclick="setReadingListsMode('double')">2</button>
+                        <button id="modeSingleBtn" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;" onclick="setReadingListsMode('single')">1</button>
+                        <button id="modeDoubleBtn" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;" onclick="setReadingListsMode('double')">2</button>
                     </div>
                     <div class="reading-list-view-toggle" id="globalReadingListToggle" style="display: none;">
-                        <button class="active" onclick="toggleAllReadingListViews('list')">📋</button>
-                        <button onclick="toggleAllReadingListViews('grid')">🔲</button>
+                        <button class="active" onclick="toggleAllReadingListViews('list')" title="Список"><i data-lucide="list"></i></button>
+                        <button onclick="toggleAllReadingListViews('grid')" title="Сетка"><i data-lucide="layout-grid"></i></button>
                     </div>
                 </div>
             </div>
@@ -1625,7 +2573,7 @@
 
                 <!-- Кнопка для сворачивания/разворачивания списка чтения на мобильных -->
             <button class="reading-lists-toggle-btn mobile-top" id="readingListsToggleBtn" style="display:none;">
-                <span id="readingListsToggleIcon">☰</span> <span id="readingListsToggleText">Показать списки</span>
+                <span id="readingListsToggleIcon"><i data-lucide="menu"></i></span> <span id="readingListsToggleText">Показать списки</span>
             </button>
             
             <div class="reading-lists-grid-page" id="readingListsGrid"></div>
@@ -1637,8 +2585,8 @@
             <div class="content-header">
                 <div class="controls">
                     <div class="view-toggle">
-                        <button class="active" onclick="toggleView('collection', 'list')">📋</button>
-                        <button onclick="toggleView('collection', 'grid')">🔲</button>
+                        <button class="active" onclick="toggleView('collection', 'list')" title="Список"><i data-lucide="list"></i></button>
+                        <button onclick="toggleView('collection', 'grid')" title="Сетка"><i data-lucide="layout-grid"></i></button>
                     </div>
                     <input type="text" class="search-box" placeholder="Поиск комиксов..." oninput="filterComics()">
                     <select class="sort-select" onchange="sortComics()">
@@ -1657,12 +2605,12 @@
     </div>
 
     <!-- Кнопка добавления комикса -->
-    <button class="add-comic-btn" onclick="showComicModal()" title="Добавить комикс">+</button>
+    <button class="add-comic-btn" onclick="showComicModal()" title="Добавить комикс"><i data-lucide="plus"></i></button>
 
     <!-- Кнопки навигации -->
     <div class="scroll-buttons">
-        <button class="scroll-btn" onclick="scrollToTop()" title="Наверх">↑</button>
-        <button class="scroll-btn" onclick="scrollToBottom()" title="Вниз">↓</button>
+        <button class="scroll-btn" onclick="scrollToTop()" title="Наверх"><i data-lucide="arrow-up"></i></button>
+        <button class="scroll-btn" onclick="scrollToBottom()" title="Вниз"><i data-lucide="arrow-down"></i></button>
     </div>
 
     <!-- Модальное окно для комикса -->
@@ -1701,7 +2649,9 @@
                 
                 <div class="form-group progress-slider-group">
                     <label for="progressSlider">Прогресс чтения</label>
-                    <input type="range" id="progressSlider" class="progress-slider" min="0" max="100" value="0" oninput="updateProgressInputs()">
+                    <div class="progress-range">
+                        <input type="range" id="progressSlider" class="progress-slider" min="0" max="100" value="0" oninput="updateProgressInputs()">
+                    </div>
                     <div class="progress-inputs">
                         <label>Прочитано:</label>
                         <input type="number" id="readIssues" min="0" value="0" onchange="updateProgressSlider()">
@@ -1712,10 +2662,21 @@
                 </div>
                 
                 <div class="modal-buttons">
-                    <button type="button" class="btn btn-secondary" onclick="hideComicModal()">Отмена</button>
+                    <button type="button" class="btn btn-secondary" onclick="tryCloseComicModal()">Отмена</button>
                     <button type="submit" class="btn btn-primary">Сохранить</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div class="modal" id="unsavedConfirmModal">
+        <div class="modal-content">
+            <h3>Закрыть без сохранения?</h3>
+            <p>Вы ввели данные в форму комикса. Если закрыть окно, изменения будут потеряны.</p>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary" onclick="hideUnsavedConfirmModal()">Продолжить редактирование</button>
+                <button type="button" class="btn btn-primary" onclick="confirmDiscardComicForm()">Закрыть без сохранения</button>
+            </div>
         </div>
     </div>
 
@@ -1740,6 +2701,176 @@
 
 
     <script>
+
+        function icon(name, extraClass = '') {
+            return `<i data-lucide="${name}" class="ico ${extraClass}"></i>`;
+        }
+
+        function refreshIcons() {
+            if (window.lucide && typeof lucide.createIcons === 'function') {
+                lucide.createIcons();
+            }
+        }
+
+        function dockCustomSelectMenu(wrapper) {
+            const menu = wrapper._customMenu;
+            if (!menu) return;
+            if (menu.parentElement !== wrapper) {
+                wrapper.appendChild(menu);
+            }
+            menu.classList.remove('custom-select-menu-floating');
+            menu.style.position = '';
+            menu.style.left = '';
+            menu.style.top = '';
+            menu.style.width = '';
+            menu.style.zIndex = '';
+            menu.hidden = true;
+        }
+
+        function positionCustomSelectMenu(wrapper) {
+            const trigger = wrapper.querySelector('.custom-select-trigger');
+            const menu = wrapper._customMenu;
+            if (!trigger || !menu) return;
+
+            document.body.appendChild(menu);
+            menu.classList.add('custom-select-menu-floating');
+            menu.hidden = false;
+
+            const rect = trigger.getBoundingClientRect();
+            menu.style.position = 'fixed';
+            menu.style.left = `${rect.left}px`;
+            menu.style.top = `${rect.bottom + 6}px`;
+            menu.style.width = `${rect.width}px`;
+            menu.style.zIndex = '12050';
+        }
+
+        function closeAllCustomSelects() {
+            document.querySelectorAll('.custom-select.open').forEach(wrapper => {
+                wrapper.classList.remove('open');
+                dockCustomSelectMenu(wrapper);
+            });
+        }
+
+        function refreshCustomSelect(select) {
+            const wrapper = select.closest('.custom-select');
+            if (!wrapper) return;
+            const trigger = wrapper.querySelector('.custom-select-trigger');
+            const menu = wrapper._customMenu;
+            if (!trigger || !menu) return;
+
+            const selected = select.options[select.selectedIndex];
+            trigger.innerHTML = `<span>${selected ? selected.textContent : ''}</span>${icon('chevron-down')}`;
+
+            menu.innerHTML = '';
+            Array.from(select.options).forEach(option => {
+                const item = document.createElement('li');
+                item.className = 'custom-select-option' + (option.selected ? ' active' : '');
+                item.dataset.value = option.value;
+                item.textContent = option.textContent;
+                item.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    select.value = option.value;
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                    closeAllCustomSelects();
+                    refreshCustomSelect(select);
+                });
+                menu.appendChild(item);
+            });
+            refreshIcons();
+        }
+
+        function initCustomSelects(root = document) {
+            root.querySelectorAll('select:not([data-custom-select])').forEach(select => {
+                select.dataset.customSelect = '1';
+                select.classList.add('select-native-hidden');
+                select.tabIndex = -1;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'custom-select';
+                wrapper.id = `custom-select-${Math.random().toString(36).slice(2, 9)}`;
+
+                const trigger = document.createElement('button');
+                trigger.type = 'button';
+                trigger.className = 'custom-select-trigger';
+                trigger.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const willOpen = !wrapper.classList.contains('open');
+                    closeAllCustomSelects();
+                    if (willOpen) {
+                        wrapper.classList.add('open');
+                        positionCustomSelectMenu(wrapper);
+                    }
+                });
+
+                const menu = document.createElement('ul');
+                menu.className = 'custom-select-menu';
+                menu.hidden = true;
+
+                select.parentNode.insertBefore(wrapper, select);
+                wrapper.appendChild(trigger);
+                wrapper.appendChild(menu);
+                wrapper.appendChild(select);
+                wrapper._customMenu = menu;
+
+                refreshCustomSelect(select);
+            });
+        }
+
+        window.addEventListener('resize', closeAllCustomSelects);
+        window.addEventListener('scroll', closeAllCustomSelects, true);
+
+        function initSkewFields(root = document) {
+            const selector = [
+                '.search-box',
+                '#newListName',
+                '#listName',
+                '#comicTitle',
+                '#comicCover',
+                '#comicYears',
+                '#comicContent',
+                '.progress-inputs input[type="number"]'
+            ].join(',');
+
+            root.querySelectorAll(selector).forEach(element => {
+                if (element.closest('.field-skew, .field-skew-inline')) return;
+                const wrap = document.createElement('div');
+                wrap.className = element.classList.contains('search-box') ? 'field-skew-inline' : 'field-skew';
+                element.classList.add('field-input');
+                element.parentNode.insertBefore(wrap, element);
+                wrap.appendChild(element);
+            });
+        }
+
+        function initFormUi() {
+            initSkewFields();
+            initCustomSelects();
+        }
+
+        document.addEventListener('click', (event) => {
+            if (event.target.closest('.custom-select-menu') || event.target.closest('.custom-select-trigger')) {
+                return;
+            }
+            closeAllCustomSelects();
+        });
+
+        function renderComicActions(comic, listName) {
+            const readIcon = comic.isRead ? icon('book-open') : icon('check');
+            const comicJson = JSON.stringify(comic).replace(/"/g, '&quot;');
+            const bookmark = listName ? `<button class="action-btn bookmark-action-btn ${currentlyReading[listName] === comic.id ? 'active' : ''}" onclick="toggleCurrentlyReading(${comic.id}, '${listName}')" title="${currentlyReading[listName] === comic.id ? 'Снять закладку' : 'Отметить как читаемый'}">${icon('star')}</button>` : '';
+            return `${bookmark}
+                <button class="action-btn edit-btn" onclick="showComicModal(${comicJson})" title="Редактировать">${icon('pencil')}</button>
+                <button class="action-btn copy-btn" onclick="copyComic(${comic.id})" title="Копировать">${icon('copy')}</button>
+                <button class="action-btn read-btn" onclick="toggleReadStatus(${comic.id})" title="${comic.isRead ? 'Отметить как непрочитанный' : 'Отметить как прочитанный'}">${readIcon}</button>
+                <button class="action-btn delete-btn" onclick="deleteComic(${comic.id})" title="Удалить">${icon('trash-2')}</button>`;
+        }
+
+        function readingCoverMarkup(cover, title, cssClass) {
+            if (!cover) {
+                return `<div class="${cssClass}" style="display:flex;align-items:center;justify-content:center;">${icon('book-open')}</div>`;
+            }
+            return `<img src="${cover}" alt="${title}" class="${cssClass}">`;
+        }
+
         // Данные
         let comicsData = JSON.parse(localStorage.getItem('marvel-comics-data') || '[]');
         let readingLists = JSON.parse(localStorage.getItem('marvel-reading-lists') || JSON.stringify([
@@ -1773,6 +2904,7 @@
         let currentView = appSettings.view || 'list';
         let currentSort = appSettings.sort || 'dateAdded';
         let editingComic = null;
+        let comicModalBaseline = null;
         let editingList = null;
         let expandedLists = new Set();
 		
@@ -1903,22 +3035,91 @@
             });
         }
 
+        function renderReadingListBodyHtml(listName) {
+            const listComics = getSortedComicsForList(listName);
+            const viewMode = listViewModes[listName] || 'list';
+            if (listComics.length === 0) {
+                return '<div style="text-align: center; color: #94a3b8; padding: 40px;">Комиксов в списке нет</div>';
+            }
+            if (viewMode === 'grid') {
+                return `<div class="reading-list-grid-view">${listComics.map((comic, index) => createReadingListGridItem(comic, listName, index)).join('')}</div>`;
+            }
+            return listComics.map(comic => createReadingListItem(comic, listName)).join('');
+        }
+
+        function findReadingListContentRoot(listName) {
+            for (const col of document.querySelectorAll('.reading-list-double-col[data-list-name]')) {
+                if (col.getAttribute('data-list-name') === listName) {
+                    return col.querySelector('.reading-list-content');
+                }
+            }
+            for (const heading of document.querySelectorAll('.reading-list-view-controls h3')) {
+                if (heading.textContent === listName) {
+                    return heading.closest('.reading-list-content');
+                }
+            }
+            return null;
+        }
+
+        function updateReadingListViewUI(listName, view) {
+            const root = findReadingListContentRoot(listName);
+            if (!root) return false;
+
+            const body = root.querySelector('.reading-list-body');
+            if (body) {
+                body.innerHTML = renderReadingListBodyHtml(listName);
+            }
+
+            const viewToggle = root.querySelector('.reading-list-view-toggle');
+            if (viewToggle) {
+                const buttons = viewToggle.querySelectorAll('button');
+                buttons.forEach((btn, index) => {
+                    btn.classList.toggle('active', (view === 'list' && index === 0) || (view === 'grid' && index === 1));
+                });
+            }
+
+            setTimeout(() => {
+                enableDragAndDrop();
+                enableGridDragAndDrop();
+                addProgressBarInteractivity();
+                refreshIcons();
+            }, 0);
+            return true;
+        }
+
+        function getReadingListsForViewToggle() {
+            const names = new Set();
+            if (readingListsMode === 'double' && openedLists) {
+                openedLists.forEach(name => { if (name) names.add(name); });
+            } else {
+                expandedLists.forEach(name => names.add(name));
+            }
+            return names;
+        }
+
         // Переключение вида списка чтения
         function toggleReadingListView(listName, view) {
             listViewModes[listName] = view;
             saveData();
-            renderReadingListContent();
+            if (!updateReadingListViewUI(listName, view)) {
+                renderReadingListContent();
+            }
         }
 
         // Глобальное переключение вида всех списков чтения
         function toggleAllReadingListViews(view) {
-            expandedLists.forEach(listName => {
+            let needsFullRender = false;
+            getReadingListsForViewToggle().forEach(listName => {
                 listViewModes[listName] = view;
+                if (!updateReadingListViewUI(listName, view)) {
+                    needsFullRender = true;
+                }
             });
             saveData();
-            renderReadingListContent();
-            
-            // Обновляем кнопки глобального переключателя
+            if (needsFullRender) {
+                renderReadingListContent();
+            }
+
             const toggleButtons = document.querySelectorAll('#globalReadingListToggle button');
             toggleButtons.forEach(btn => btn.classList.remove('active'));
             if (view === 'list') {
@@ -2032,12 +3233,20 @@
             return Math.max(totalIssues, 1);
         }
 
+        function syncProgressSliderFill() {
+            const slider = document.getElementById('progressSlider');
+            if (!slider) return;
+            const pct = Math.min(100, Math.max(0, parseInt(slider.value, 10) || 0));
+            slider.style.setProperty('--progress-pct', pct + '%');
+        }
+
         // Обновление слайдера прогресса
         function updateProgressSlider() {
             const readIssues = parseInt(document.getElementById('readIssues').value) || 0;
             const totalIssues = parseInt(document.getElementById('totalIssues').value) || 1;
             const percentage = Math.min((readIssues / totalIssues) * 100, 100);
             document.getElementById('progressSlider').value = percentage;
+            syncProgressSliderFill();
         }
 
         // Обновление полей ввода прогресса
@@ -2046,6 +3255,7 @@
             const totalIssues = parseInt(document.getElementById('totalIssues').value) || 1;
             const readIssues = Math.round((percentage / 100) * totalIssues);
             document.getElementById('readIssues').value = readIssues;
+            syncProgressSliderFill();
         }
 
         // Интерактивный прогресс-бар в списках
@@ -2102,15 +3312,64 @@
                 document.getElementById('readIssues').value = 0;
                 document.getElementById('totalIssues').value = 1;
                 document.getElementById('progressSlider').value = 0;
+                syncProgressSliderFill();
             }
             
             modal.style.display = 'block';
+            syncProgressSliderFill();
+            comicModalBaseline = captureComicFormState();
         }
 
-        // Скрыть модальное окно комикса
-        function hideComicModal() {
+        function captureComicFormState() {
+            const lists = Array.from(document.querySelectorAll('#readingListsSelection input:checked'))
+                .map(cb => cb.value)
+                .sort()
+                .join('|');
+            return JSON.stringify({
+                title: document.getElementById('comicTitle').value,
+                cover: document.getElementById('comicCover').value,
+                content: document.getElementById('comicContent').value,
+                years: document.getElementById('comicYears').value,
+                readIssues: document.getElementById('readIssues').value,
+                totalIssues: document.getElementById('totalIssues').value,
+                progress: document.getElementById('progressSlider').value,
+                lists
+            });
+        }
+
+        function isComicFormDirty() {
+            if (!comicModalBaseline) return false;
+            return captureComicFormState() !== comicModalBaseline;
+        }
+
+        function forceHideComicModal() {
+            hideUnsavedConfirmModal();
             document.getElementById('comicModal').style.display = 'none';
             editingComic = null;
+            comicModalBaseline = null;
+        }
+
+        function tryCloseComicModal() {
+            const modal = document.getElementById('comicModal');
+            if (modal.style.display !== 'block') return;
+            if (isComicFormDirty()) {
+                document.getElementById('unsavedConfirmModal').style.display = 'block';
+                return;
+            }
+            forceHideComicModal();
+        }
+
+        function hideUnsavedConfirmModal() {
+            document.getElementById('unsavedConfirmModal').style.display = 'none';
+        }
+
+        function confirmDiscardComicForm() {
+            forceHideComicModal();
+        }
+
+        // Скрыть модальное окно комикса (после сохранения)
+        function hideComicModal() {
+            forceHideComicModal();
         }
 
         // Автоматическое обновление количества выпусков при изменении содержания
@@ -2765,7 +4024,7 @@ function getSortedComicsForList(listName) {
             if (comics.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <h3>📚 Комиксов не найдено</h3>
+                        <h3>${icon('library')} Комиксов не найдено</h3>
                         <p>Добавьте комиксы в коллекцию или измените фильтры</p>
                     </div>
                 `;
@@ -2779,6 +4038,7 @@ function getSortedComicsForList(listName) {
             }
             
             addProgressBarInteractivity();
+            refreshIcons();
         }
 
         // Добавление интерактивности к прогресс-барам
@@ -2833,10 +4093,11 @@ function getSortedComicsForList(listName) {
         // Создание карточки комикса
         function createComicCard(comic) {
             const progress = comic.totalIssues > 0 ? (comic.readIssues / comic.totalIssues) * 100 : 0;
+            const coverFallback = `<div class="comic-image" style="display:none;align-items:center;justify-content:center;">${icon('book-open')}</div>`;
             const imageHtml = comic.cover ? 
                 `<img src="${comic.cover}" alt="${comic.title}" class="comic-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                 <div class="comic-image" style="display:none;">📖</div>` :
-                `<div class="comic-image">📖</div>`;
+                 ${coverFallback}` :
+                `<div class="comic-image" style="display:flex;align-items:center;justify-content:center;">${icon('book-open')}</div>`;
 
             return `
                 <div class="comic-card ${comic.isRead ? 'read' : ''}" data-comic-id="${comic.id}">
@@ -2852,12 +4113,7 @@ function getSortedComicsForList(listName) {
                             <div class="progress-text">${comic.readIssues}/${comic.totalIssues} выпусков</div>
                         </div>
                     </div>
-                    <div class="comic-actions">
-                        <button class="action-btn edit-btn" onclick="showComicModal(${JSON.stringify(comic).replace(/"/g, '&quot;')})" title="Редактировать">✏️</button>
-						<button class="action-btn copy-btn" onclick="copyComic(${comic.id})" title="Копировать">📋</button>
-                        <button class="action-btn read-btn" onclick="toggleReadStatus(${comic.id})" title="${comic.isRead ? 'Отметить как непрочитанный' : 'Отметить как прочитанный'}">${comic.isRead ? '📖' : '✅'}</button>
-                        <button class="action-btn delete-btn" onclick="deleteComic(${comic.id})" title="Удалить">✕</button>
-                    </div>
+                    <div class="comic-actions">${renderComicActions(comic)}</div>
                 </div>
             `;
         }
@@ -2865,10 +4121,11 @@ function getSortedComicsForList(listName) {
         // Создание элемента списка комикса
         function createComicListItem(comic) {
             const progress = comic.totalIssues > 0 ? (comic.readIssues / comic.totalIssues) * 100 : 0;
+            const coverFallback = `<div class="comic-list-image" style="display:none;align-items:center;justify-content:center;">${icon('book-open')}</div>`;
             const imageHtml = comic.cover ? 
                 `<img src="${comic.cover}" alt="${comic.title}" class="comic-list-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                 <div class="comic-list-image" style="display:none;">📖</div>` :
-                `<div class="comic-list-image">📖</div>`;
+                 ${coverFallback}` :
+                `<div class="comic-list-image" style="display:flex;align-items:center;justify-content:center;">${icon('book-open')}</div>`;
 
             return `
                 <div class="comic-list-item ${comic.isRead ? 'read' : ''}" data-comic-id="${comic.id}">
@@ -2884,12 +4141,7 @@ function getSortedComicsForList(listName) {
                             <div class="progress-text">${comic.readIssues}/${comic.totalIssues} выпусков прочитано</div>
                         </div>
                     </div>
-                    <div class="comic-actions">
-                        <button class="action-btn edit-btn" onclick="showComicModal(${JSON.stringify(comic).replace(/"/g, '&quot;')})" title="Редактировать">✏️</button>
-						<button class="action-btn copy-btn" onclick="copyComic(${comic.id})" title="Копировать">📋</button>
-                        <button class="action-btn read-btn" onclick="toggleReadStatus(${comic.id})" title="${comic.isRead ? 'Отметить как непрочитанный' : 'Отметить как прочитанный'}">${comic.isRead ? '📖' : '✅'}</button>
-                        <button class="action-btn delete-btn" onclick="deleteComic(${comic.id})" title="Удалить">✕</button>
-                    </div>
+                    <div class="comic-actions">${renderComicActions(comic)}</div>
                 </div>
             `;
         }
@@ -2909,6 +4161,7 @@ function getSortedComicsForList(listName) {
             } else {
                 globalToggle.style.display = 'none';
             }
+            refreshIcons();
         }
 
 		// Отрисовка сетки списков чтения
@@ -2918,7 +4171,7 @@ function getSortedComicsForList(listName) {
 			if (readingLists.length === 0) {
 				container.innerHTML = `
 					<div class="empty-state">
-						<h3>📖 Списков чтения нет</h3>
+						<h3>${icon('book-open')} Списков чтения нет</h3>
 						<p>Создайте новый список чтения выше</p>
 					</div>
 				`;
@@ -2948,8 +4201,8 @@ function getSortedComicsForList(listName) {
 						<div class="reading-list-card-title">${listName}</div>
 						<div class="reading-list-card-meta">${readCount}/${listComics.length} прочитано | ${readIssues}/${totalIssues} выпусков</div>
 						<div class="reading-list-card-actions" onclick="event.stopPropagation()">
-							<button class="action-btn edit-btn" onclick="showListModal('${listName}')" title="Редактировать">✏️</button>
-							<button class="action-btn delete-btn" onclick="deleteReadingList('${listName}')" title="Удалить">✕</button>
+							<button class="action-btn edit-btn" onclick="showListModal('${listName}')" title="Редактировать">${icon('pencil')}</button>
+							<button class="action-btn delete-btn" onclick="deleteReadingList('${listName}')" title="Удалить">${icon('trash-2')}</button>
 							${readingListsMode === 'double' ? `
 								<button class="action-btn" style="background: #334155; color: #f59e0b; font-weight: bold; border: 2px solid #64748b;" onclick="setOpenedList('${listName}', 0)" title="Открыть как первый">1</button>
 								<button class="action-btn" style="background: #334155; color: #f59e0b; font-weight: bold; border: 2px solid #64748b;" onclick="setOpenedList('${listName}', 1)" title="Открыть как второй">2</button>
@@ -2986,10 +4239,10 @@ function getSortedComicsForList(listName) {
                 }
                 container.innerHTML = `
                     <div style="display: flex; gap: 20px;">
-                        <div class="reading-list-double-col" data-list-name="${openedLists[0] || ''}" style="flex:1; min-width:0; max-width:50%; height:91vh; overflow-y:auto; background:rgba(30,41,59,0.15); border-radius: 16px; border: 1px solid #475569;">
+                        <div class="reading-list-double-col" data-list-name="${openedLists[0] || ''}" style="flex:1; min-width:0; max-width:50%; height:91vh; overflow-y:auto; background:var(--bg-panel); border:3px solid #000; box-shadow:4px 4px 0 #000;">
                              ${renderSingleReadingListContent(openedLists[0], 0)}
                          </div>
-                        <div class="reading-list-double-col" data-list-name="${openedLists[1] || ''}" style="flex:1; min-width:0; max-width:50%; height:91vh; overflow-y:auto; background:rgba(30,41,59,0.15); border-radius: 16px; border: 1px solid #475569;">
+                        <div class="reading-list-double-col" data-list-name="${openedLists[1] || ''}" style="flex:1; min-width:0; max-width:50%; height:91vh; overflow-y:auto; background:var(--bg-panel); border:3px solid #000; box-shadow:4px 4px 0 #000;">
                              ${renderSingleReadingListContent(openedLists[1], 1)}
                          </div>
                     </div>
@@ -3015,6 +4268,7 @@ function getSortedComicsForList(listName) {
                 enableDragAndDrop();
                 enableGridDragAndDrop();
                 addProgressBarInteractivity();
+                refreshIcons();
             }, 100);
         }
 
@@ -3025,11 +4279,7 @@ function getSortedComicsForList(listName) {
             return `
                 <div class="reading-list-item ${comic.isRead ? 'read' : ''}" data-comic-id="${comic.id}" data-list="${listName}">
                     <div class="reading-list-comic-info">
-
-                        ${comic.cover ? 
-                            `<img src="${comic.cover}" alt="${comic.title}" class="reading-list-image">` :
-                            '<div class="reading-list-image">📖</div>'
-                        }
+                        ${readingCoverMarkup(comic.cover, comic.title, 'reading-list-image')}
                         <div class="reading-list-text-info">
                             <div class="reading-list-main-info">
                                 <div class="reading-list-title-text">${comic.title}</div>
@@ -3042,17 +4292,9 @@ function getSortedComicsForList(listName) {
                                 </div>
                             </div>
                         </div>
-                        <div class="drag-handle">⋮⋮</div>
+                        <div class="drag-handle">${icon('grip-vertical')}</div>
                     </div>
-                    <div class="comic-actions">
-						 <button class="action-btn bookmark-action-btn ${currentlyReading[listName] === comic.id ? 'active' : ''}" 
-							onclick="toggleCurrentlyReading(${comic.id}, '${listName}')" 
-							title="${currentlyReading[listName] === comic.id ? 'Снять закладку' : 'Отметить как читаемый'}">⭐</button>
-                          <button class="action-btn edit-btn" onclick="showComicModal(${JSON.stringify(comic).replace(/"/g, '&quot;')})" title="Редактировать">✏️</button>
-						 <button class="action-btn copy-btn" onclick="copyComic(${comic.id})" title="Копировать">📋</button>
-						 <button class="action-btn read-btn" onclick="toggleReadStatus(${comic.id})" title="${comic.isRead ? 'Отметить как непрочитанный' : 'Отметить как прочитанный'}">${comic.isRead ? '📖' : '✅'}</button>
-						 <button class="action-btn delete-btn" onclick="deleteComic(${comic.id})" title="Удалить">✕</button>
-                    </div>
+                    <div class="comic-actions">${renderComicActions(comic, listName)}</div>
                 </div>
             `;
         }
@@ -3064,11 +4306,7 @@ function getSortedComicsForList(listName) {
             return `
                 <div class="reading-list-grid-item ${comic.isRead ? 'read' : ''}" data-comic-id="${comic.id}" data-list="${listName}">
                     <div class="reading-list-order-arrow">${index + 1}</div>
-
-                    ${comic.cover ? 
-                        `<img src="${comic.cover}" alt="${comic.title}" class="reading-list-grid-image">` :
-                        '<div class="reading-list-grid-image">📖</div>'
-                    }
+                    ${readingCoverMarkup(comic.cover, comic.title, 'reading-list-grid-image')}
                     <div class="reading-list-grid-info">
                         <div class="reading-list-grid-title">${comic.title}</div>
                         <div class="reading-list-grid-meta">
@@ -3082,15 +4320,7 @@ function getSortedComicsForList(listName) {
                             <div class="progress-text">${comic.readIssues}/${comic.totalIssues} выпусков</div>
                         </div>
                     </div>
-                    <div class="comic-actions">
-							<button class="action-btn bookmark-action-btn ${currentlyReading[listName] === comic.id ? 'active' : ''}" 
-							onclick="toggleCurrentlyReading(${comic.id}, '${listName}')" 
-							title="${currentlyReading[listName] === comic.id ? 'Снять закладку' : 'Отметить как читаемый'}">⭐</button>
-                          <button class="action-btn edit-btn" onclick="showComicModal(${JSON.stringify(comic).replace(/"/g, '&quot;')})" title="Редактировать">✏️</button>
-						  <button class="action-btn copy-btn" onclick="copyComic(${comic.id})" title="Копировать">📋</button>
-						  <button class="action-btn read-btn" onclick="toggleReadStatus(${comic.id})" title="${comic.isRead ? 'Отметить как непрочитанный' : 'Отметить как прочитанный'}">${comic.isRead ? '📖' : '✅'}</button>
-						  <button class="action-btn delete-btn" onclick="deleteComic(${comic.id})" title="Удалить">✕</button>
-                    </div>
+                    <div class="comic-actions">${renderComicActions(comic, listName)}</div>
                 </div>
             `;
         }
@@ -3399,8 +4629,11 @@ function getSortedComicsForList(listName) {
             const comicModal = document.getElementById('comicModal');
             const listModal = document.getElementById('listModal');
             
+            if (e.target === document.getElementById('unsavedConfirmModal')) {
+                hideUnsavedConfirmModal();
+            }
             if (e.target === comicModal) {
-                hideComicModal();
+                tryCloseComicModal();
             }
             if (e.target === listModal) {
                 hideListModal();
@@ -3422,8 +4655,13 @@ function getSortedComicsForList(listName) {
             }
             
             if (e.key === 'Escape') {
-                hideComicModal();
-                hideListModal();
+                if (document.getElementById('unsavedConfirmModal').style.display === 'block') {
+                    hideUnsavedConfirmModal();
+                } else if (document.getElementById('comicModal').style.display === 'block') {
+                    tryCloseComicModal();
+                } else {
+                    hideListModal();
+                }
             }
         });
 
@@ -3466,10 +4704,12 @@ function getSortedComicsForList(listName) {
             }
             
             renderReadingLists();
-            
+            initFormUi();
+
             const sortSelect = document.querySelector('#collection .sort-select');
             if (sortSelect) {
                 sortSelect.value = currentSort;
+                refreshCustomSelect(sortSelect);
             }
             
             const viewButtons = document.querySelector('#collection .view-toggle');
@@ -3481,6 +4721,7 @@ function getSortedComicsForList(listName) {
                     viewButtons.children[1].classList.add('active');
                 }
             }
+            refreshIcons();
         });
 
         // Инициализация
@@ -3595,11 +4836,11 @@ function getSortedComicsForList(listName) {
                 btn.style.display = 'flex';
                 if (readingListsCollapsed) {
                     grid.classList.remove('mobile-visible');
-                    document.getElementById('readingListsToggleIcon').textContent = '☰';
+                    document.getElementById('readingListsToggleIcon').innerHTML = icon('menu');
                     document.getElementById('readingListsToggleText').textContent = 'Показать списки';
                 } else {
                     grid.classList.add('mobile-visible');
-                    document.getElementById('readingListsToggleIcon').textContent = '▲';
+                    document.getElementById('readingListsToggleIcon').innerHTML = icon('chevron-up');
                     document.getElementById('readingListsToggleText').textContent = 'Скрыть списки';
                 }
             } else {
@@ -3631,34 +4872,29 @@ function getSortedComicsForList(listName) {
         // --- МОДИФИКАЦИЯ renderReadingListContent для мобильных ---
         function renderSingleReadingListContent(listName, colIdx) {
             if (!listName) return '';
-            const listComics = getSortedComicsForList(listName);
             const viewMode = listViewModes[listName] || 'list';
             const sortMode = listSortModes[listName] || 'years';
             const isMobile = window.innerWidth <= 768;
             return `
                 <div class="reading-list-content active" style="">
                     <div class="reading-list-view-controls">
-                        <h3 style="color: #f1f5f9; margin: 0; flex: 1;">${listName}</h3>
+                        <h3 style="color: #eef2ff; margin: 0; flex: 1;">${listName}</h3>
                         ${!isMobile ? `
-                            <button class="btn btn-secondary" onclick="exportReadingListToTxt('${listName}')" title="Экспорт списка в TXT">📄</button>
-                            <button class="btn btn-secondary" onclick="exportReadingListToJson('${listName}')" title="Экспорт списка в JSON">📄</button>
+                            <button type="button" class="btn btn-secondary btn-slab" onclick="exportReadingListToTxt('${listName}')" title="Экспорт списка в TXT">${icon('file-text')}</button>
+                            <button type="button" class="btn btn-secondary btn-slab" onclick="exportReadingListToJson('${listName}')" title="Экспорт списка в JSON">${icon('file-code')}</button>
                         ` : ''}
                         <div class="reading-list-sort-toggle">
                             <button class="${sortMode === 'years' ? 'active' : ''}" onclick="setListSortMode('${listName}', 'years')">По годам</button>
                             <button class="${sortMode === 'end' ? 'active' : ''}" onclick="setListSortMode('${listName}', 'end')">В конец</button>
                         </div>
-                        <div class="reading-list-view-toggle">
-                            <button class="${viewMode === 'list' ? 'active' : ''}" onclick="toggleReadingListView('${listName}', 'list')">📋</button>
-                            <button class="${viewMode === 'grid' ? 'active' : ''}" onclick="toggleReadingListView('${listName}', 'grid')">🔲</button>
+                        <div class="reading-list-view-toggle view-toggle">
+                            <button class="${viewMode === 'list' ? 'active' : ''}" onclick="toggleReadingListView('${listName}', 'list')" title="Список">${icon('list')}</button>
+                            <button class="${viewMode === 'grid' ? 'active' : ''}" onclick="toggleReadingListView('${listName}', 'grid')" title="Сетка">${icon('layout-grid')}</button>
                         </div>
                     </div>
-                    ${listComics.length === 0 ? 
-                        '<div style="text-align: center; color: #94a3b8; padding: 40px;">Комиксов в списке нет</div>' :
-                        (viewMode === 'grid' ? 
-                            `<div class="reading-list-grid-view">${listComics.map((comic, index) => createReadingListGridItem(comic, listName, index)).join('')}</div>` :
-                            listComics.map(comic => createReadingListItem(comic, listName)).join('')
-                        )
-                    }
+                    <div class="reading-list-body" data-list-name="${listName}">
+                        ${renderReadingListBodyHtml(listName)}
+                    </div>
                 </div>
             `;
         }
@@ -3669,10 +4905,7 @@ function getSortedComicsForList(listName) {
             return `
                 <div class="reading-list-item ${comic.isRead ? 'read' : ''}" data-comic-id="${comic.id}" data-list="${listName}">
                     <div class="reading-list-comic-info">
-                        ${comic.cover ? 
-                            `<img src="${comic.cover}" alt="${comic.title}" class="reading-list-image">` :
-                            '<div class="reading-list-image">📖</div>'
-                        }
+                        ${readingCoverMarkup(comic.cover, comic.title, 'reading-list-image')}
                         <div class="reading-list-text-info">
                             <div class="reading-list-main-info" style="display:flex; flex-direction:${isMobile ? 'column' : 'row'}; align-items:${isMobile ? 'flex-start' : 'center'}; gap:8px;">
                                 <div class="reading-list-title-text">${comic.title}</div>
@@ -3685,17 +4918,9 @@ function getSortedComicsForList(listName) {
                                 </div>
                             </div>
                         </div>
-                        <div class="drag-handle">⋮⋮</div>
+                        <div class="drag-handle">${icon('grip-vertical')}</div>
                     </div>
-                    <div class="comic-actions">
-                         <button class="action-btn bookmark-action-btn ${currentlyReading[listName] === comic.id ? 'active' : ''}" 
-                            onclick="toggleCurrentlyReading(${comic.id}, '${listName}')" 
-                            title="${currentlyReading[listName] === comic.id ? 'Снять закладку' : 'Отметить как читаемый'}">⭐</button>
-                          <button class="action-btn edit-btn" onclick="showComicModal(${JSON.stringify(comic).replace(/"/g, '&quot;')})" title="Редактировать">✏️</button>
-                         <button class="action-btn copy-btn" onclick="copyComic(${comic.id})" title="Копировать">📋</button>
-                         <button class="action-btn read-btn" onclick="toggleReadStatus(${comic.id})" title="${comic.isRead ? 'Отметить как непрочитанный' : 'Отметить как прочитанный'}">${comic.isRead ? '📖' : '✅'}</button>
-                         <button class="action-btn delete-btn" onclick="deleteComic(${comic.id})" title="Удалить">✕</button>
-                    </div>
+                    <div class="comic-actions">${renderComicActions(comic, listName)}</div>
                 </div>
             `;
         }
@@ -3756,15 +4981,22 @@ function getSortedComicsForList(listName) {
             }
         }
         // --- SIDEBAR LOGIC ---
+        function setSidebarOpen(isOpen) {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open', isOpen);
+            document.body.classList.toggle('sidebar-open', isOpen);
+        }
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('open');
+            setSidebarOpen(!sidebar.classList.contains('open'));
+            refreshIcons();
         }
         document.addEventListener('mousedown', function(e) {
             const sidebar = document.getElementById('sidebar');
             const settingsBtn = document.querySelector('.settings-btn');
             if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !settingsBtn.contains(e.target)) {
-                sidebar.classList.remove('open');
+                setSidebarOpen(false);
             }
         });
         // --- AUTH BUTTONS VISIBILITY ---
@@ -3796,22 +5028,22 @@ function getSortedComicsForList(listName) {
         }
         // --- DELETE ALL DATA ---
         function deleteAllData() {
-            if (confirm('⚠️ ВНИМАНИЕ!\n\nЭто действие полностью удалит ВСЕ данные приложения. Восстановить данные будет невозможно!\n\nРекомендуется сначала сделать экспорт данных.\n\nВы уверены, что хотите продолжить?')) {
+            if (confirm('ВНИМАНИЕ!\n\nЭто действие полностью удалит ВСЕ данные приложения. Восстановить данные будет невозможно!\n\nРекомендуется сначала сделать экспорт данных.\n\nВы уверены, что хотите продолжить?')) {
                 if (confirm('Последнее предупреждение! ВСЕ ДАННЫЕ БУДУТ УДАЛЕНЫ НАВСЕГДА! Продолжить очистку?')) {
                     const user = auth.currentUser;
                     if (user) {
                         db.collection('comics').doc(user.uid).delete().then(() => {
                             clearLocalData();
-                            alert('✅ Все данные успешно удалены из облака и локально!');
+                            alert('Все данные успешно удалены из облака и локально!');
                             document.getElementById('sidebar').classList.remove('open');
                         }).catch((error) => {
                             clearLocalData();
-                            alert('⚠️ Ошибка при удалении из облака, но локальные данные удалены.\n' + error.message);
+                            alert('Ошибка при удалении из облака, но локальные данные удалены.\n' + error.message);
                             document.getElementById('sidebar').classList.remove('open');
                         });
                     } else {
                         clearLocalData();
-                        alert('✅ Все данные успешно удалены!');
+                        alert('Все данные успешно удалены!');
                         document.getElementById('sidebar').classList.remove('open');
                     }
                 }
