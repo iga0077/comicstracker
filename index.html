@@ -1386,15 +1386,15 @@
         .comic-content a,
         .reading-list-content-text a,
         .reading-list-grid-content a {
-            color: #87CEEB; /* бледно-голубой */
+            color: #ffd400;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: color 0.2s ease;
         }
 
         .comic-content a:hover,
         .reading-list-content-text a:hover,
         .reading-list-grid-content a:hover {
-            color: #B0E0E6; /* более светлый голубой при наведении */
+            color: #ffe566;
             text-decoration: underline;
         }
 
@@ -1586,22 +1586,12 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background:
-                radial-gradient(ellipse 120% 80% at 50% 100%, rgba(255, 59, 48, 0.08), transparent 55%),
-                radial-gradient(circle at 10% 20%, rgba(34, 211, 238, 0.06), transparent 40%),
-                linear-gradient(180deg, #070d18 0%, #0b1220 45%, #0f172a 100%);
+            background: var(--bg-deep);
             color: var(--text);
         }
 
         body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            opacity: 0.07;
-            background-image: radial-gradient(circle, #fff 0.8px, transparent 0.8px);
-            background-size: 7px 7px;
-            z-index: 0;
+            display: none;
         }
 
         .main-content {
@@ -1741,7 +1731,7 @@
         }
 
         .btn-primary::before {
-            background: linear-gradient(180deg, #ffe566 0%, var(--yellow) 100%);
+            background: var(--yellow);
         }
 
         .btn-primary:hover::before {
@@ -1843,8 +1833,6 @@
             top: 0;
             height: 42%;
             opacity: 0.35;
-            background-image: radial-gradient(circle, #fff 1px, transparent 1px);
-            background-size: 6px 6px;
             pointer-events: none;
         }
 
@@ -1883,14 +1871,14 @@
         }
 
         .progress-fill {
-            background: linear-gradient(90deg, var(--yellow), #ffe566) !important;
+            background: var(--yellow) !important;
             border-radius: 0 !important;
         }
 
         .comic-card.read .progress-fill,
         .comic-list-item.read .progress-fill,
         .reading-list-grid-item.read .reading-list-grid-progress .progress-fill {
-            background: linear-gradient(90deg, var(--green), #86efac) !important;
+            background: var(--green) !important;
         }
 
         .reading-list-grid-progress {
@@ -1909,7 +1897,7 @@
         }
 
         .reading-list-grid-progress .progress-fill {
-            background: linear-gradient(90deg, var(--yellow), #ffe566) !important;
+            background: var(--yellow) !important;
             border-radius: 0 !important;
         }
 
@@ -1980,10 +1968,6 @@
 
         .reading-list-title-text,
         .reading-list-content-text,
-        .comic-title,
-        .comic-content,
-        .comic-list-info .comic-title,
-        .comic-list-info .comic-content,
         .reading-list-grid-title,
         .reading-list-grid-content {
             background: var(--bg-panel-2) !important;
@@ -1993,18 +1977,36 @@
             box-shadow: 2px 2px 0 #000;
         }
 
-        .comic-title,
-        .comic-list-info .comic-title,
+        .reading-list-title-text,
         .reading-list-grid-title {
             padding: 8px 12px;
             margin-bottom: 8px;
         }
 
-        .comic-content,
-        .comic-list-info .comic-content,
+        .reading-list-content-text,
         .reading-list-grid-content {
             padding: 8px 12px;
             margin-bottom: 8px;
+        }
+
+        .comic-card .comic-title,
+        .comic-card .comic-content,
+        .comic-list-item .comic-title,
+        .comic-list-item .comic-content {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+
+        .comic-content a,
+        .comic-list-info .comic-content a {
+            color: var(--yellow) !important;
+        }
+
+        .comic-content a:hover,
+        .comic-list-info .comic-content a:hover {
+            color: #ffe566 !important;
         }
 
         .form-group label,
@@ -2050,6 +2052,17 @@
             color: #000 !important;
         }
 
+        .reading-list-progress-blocks {
+            overflow: visible;
+        }
+
+        .reading-list-progress-blocks .progress-block {
+            transform: skewX(-10deg);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .progress-block {
             background: var(--bg-panel-2) !important;
             border: 2px solid #000 !important;
@@ -2063,9 +2076,10 @@
         }
 
         .progress-block.read {
-            background: linear-gradient(180deg, #86efac 0%, var(--green) 100%) !important;
+            background: #14532d !important;
             border-color: #000 !important;
-            color: #000 !important;
+            color: #bbf7d0 !important;
+            opacity: 0.55 !important;
         }
 
         .reading-list-image,
@@ -2076,6 +2090,15 @@
             border: 2px solid #000 !important;
             border-radius: 0 !important;
             color: var(--muted) !important;
+            transform: skewX(-8deg);
+            box-shadow: 3px 3px 0 #000;
+        }
+
+        .reading-list-comic-info,
+        .comic-card,
+        .comic-list-item,
+        .reading-list-grid-item {
+            overflow: visible;
         }
 
         .reading-lists-toggle-btn {
@@ -2604,13 +2627,7 @@
             height: 14px;
             border: 3px solid #000;
             box-shadow: 3px 3px 0 #000;
-            background: linear-gradient(
-                to right,
-                var(--yellow) 0%,
-                var(--yellow) var(--progress-pct),
-                #334155 var(--progress-pct),
-                #334155 100%
-            );
+            background: #334155;
         }
 
         .progress-slider-group .progress-slider::-webkit-slider-thumb {
@@ -2686,13 +2703,13 @@
         }
 
         html::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #ffe566 0%, var(--yellow, #ffd400) 100%);
+            background: var(--yellow, #ffd400);
             border: 2px solid #000;
             box-shadow: 2px 2px 0 #000;
         }
 
         html::-webkit-scrollbar-thumb:hover {
-            background: var(--yellow, #ffd400);
+            background: #ffe566;
         }
 
         html::-webkit-scrollbar-corner {
@@ -2732,7 +2749,7 @@
         <button onclick="exportData()"><i data-lucide="upload"></i> Экспорт всех данных (JSON)</button>
         <button onclick="importData()"><i data-lucide="download"></i> Импорт данных</button>
         <button onclick="resetAllReadStatus()"><i data-lucide="rotate-ccw"></i> Сбросить прочитанное</button>
-        <button class="btn-danger" onclick="deleteAllData()" style="background: linear-gradient(135deg, #ef4444, #dc2626);"><i data-lucide="trash-2"></i> Удалить все данные</button>
+        <button class="btn-danger" onclick="deleteAllData()" style="background: #ef4444;"><i data-lucide="trash-2"></i> Удалить все данные</button>
         <button id="logoutBtn" class="btn btn-secondary" onclick="logout()" style="display:none; margin-top: 20px;">Выйти</button>
     </div>
 
@@ -4554,7 +4571,7 @@ function getSortedComicsForList(listName) {
                 }
                 if (comic.totalIssues > 100) {
                     blocks.push(`
-                        <div class="progress-block" style="background: rgba(100, 116, 139, 0.5); cursor: default; width: ${blockWidth};" title="Всего выпусков: ${comic.totalIssues}">
+                        <div class="progress-block" style="background: #334155; cursor: default; width: ${blockWidth};" title="Всего выпусков: ${comic.totalIssues}">
                             +${comic.totalIssues - 100}
                         </div>
                     `);
@@ -5154,7 +5171,7 @@ function getSortedComicsForList(listName) {
                 }
                 if (comic.totalIssues > 100) {
                     blocks.push(`
-                        <div class="progress-block" style="background: rgba(100, 116, 139, 0.5); cursor: default; width: ${blockWidth};" title="Всего выпусков: ${comic.totalIssues}">
+                        <div class="progress-block" style="background: #334155; cursor: default; width: ${blockWidth};" title="Всего выпусков: ${comic.totalIssues}">
                             +${comic.totalIssues - 100}
                         </div>
                     `);
