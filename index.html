@@ -1802,8 +1802,53 @@
             backdrop-filter: none !important;
         }
 
-        .comic-card:hover, .comic-list-item:hover, .reading-list-card:hover {
+        .comic-card:hover, .comic-list-item:hover {
             transform: translate(-2px, -2px);
+        }
+
+        .reading-list-card {
+            transform: skewX(-10deg);
+        }
+
+        .reading-list-card-title,
+        .reading-list-card-meta,
+        .reading-list-card-actions {
+            transform: skewX(10deg);
+        }
+
+        .reading-list-card:hover {
+            transform: skewX(-10deg) translate(-2px, -2px) !important;
+            border-color: var(--yellow) !important;
+        }
+
+        .reading-list-card.active {
+            transform: skewX(-10deg);
+        }
+
+        .reading-list-card.drag-over {
+            transform: skewX(-10deg) translate(-2px, -4px) !important;
+        }
+
+        .reading-lists-grid-page {
+            overflow: visible;
+        }
+
+        .reading-list-item {
+            transform: skewX(-10deg);
+        }
+
+        .reading-list-item .reading-list-comic-info,
+        .reading-list-item > .comic-actions {
+            transform: skewX(10deg);
+        }
+
+        .reading-list-item:hover {
+            transform: skewX(-10deg) translate(-2px, -2px);
+            border-color: var(--yellow) !important;
+        }
+
+        #readingListsContainer {
+            overflow: visible;
         }
 
         .reading-list-card.active {
@@ -2021,6 +2066,8 @@
         .reading-list-item .reading-list-years {
             font-size: 14px;
             font-weight: 600;
+            background: var(--yellow) !important;
+            color: #000 !important;
         }
 
         .reading-list-item .reading-list-content-text {
@@ -2159,10 +2206,6 @@
         }
 
         .reading-list-card.active {
-            border-color: var(--yellow) !important;
-        }
-
-        .reading-list-card:hover {
             border-color: var(--yellow) !important;
         }
 
