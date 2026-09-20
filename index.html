@@ -1833,17 +1833,8 @@
             overflow: visible;
         }
 
-        .reading-list-item {
-            transform: skewX(-10deg);
-        }
-
-        .reading-list-item .reading-list-comic-info,
-        .reading-list-item > .comic-actions {
-            transform: skewX(10deg);
-        }
-
         .reading-list-item:hover {
-            transform: skewX(-10deg) translate(-2px, -2px);
+            transform: translate(-2px, -2px);
             border-color: var(--yellow) !important;
         }
 
@@ -2179,10 +2170,6 @@
             border-radius: 0 !important;
             color: var(--muted) !important;
             box-shadow: 3px 3px 0 #000;
-        }
-
-        .reading-list-item .reading-list-image {
-            transform: skewX(-4deg);
         }
 
         .reading-list-comic-info {
