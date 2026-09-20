@@ -1591,7 +1591,14 @@
         }
 
         body::before {
-            display: none;
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.07;
+            background-image: radial-gradient(circle, #fff 0.8px, transparent 0.8px);
+            background-size: 7px 7px;
+            z-index: 0;
         }
 
         .main-content {
@@ -1957,7 +1964,6 @@
         }
 
         .comic-years,
-        .reading-list-years,
         .reading-list-grid-years {
             color: #000 !important;
             background: var(--yellow) !important;
@@ -1966,8 +1972,6 @@
             box-shadow: 2px 2px 0 #000;
         }
 
-        .reading-list-title-text,
-        .reading-list-content-text,
         .reading-list-grid-title,
         .reading-list-grid-content {
             background: var(--bg-panel-2) !important;
@@ -1977,16 +1981,53 @@
             box-shadow: 2px 2px 0 #000;
         }
 
-        .reading-list-title-text,
         .reading-list-grid-title {
             padding: 8px 12px;
             margin-bottom: 8px;
         }
 
-        .reading-list-content-text,
         .reading-list-grid-content {
             padding: 8px 12px;
             margin-bottom: 8px;
+        }
+
+        .reading-list-item .reading-list-main-info {
+            overflow: visible;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .reading-list-item .reading-list-title-text,
+        .reading-list-item .reading-list-years,
+        .reading-list-item .reading-list-content-text {
+            transform: skewX(-10deg);
+            background: var(--bg-panel-2) !important;
+            border: 3px solid #000 !important;
+            border-radius: 0 !important;
+            box-shadow: 3px 3px 0 #000 !important;
+            color: var(--text) !important;
+            padding: 8px 12px;
+            display: inline-block;
+            margin: 0;
+        }
+
+        .reading-list-item .reading-list-title-text {
+            font-weight: 700;
+            font-size: 18px;
+            font-family: 'Oswald', sans-serif;
+            letter-spacing: 0.02em;
+        }
+
+        .reading-list-item .reading-list-years {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .reading-list-item .reading-list-content-text {
+            font-size: 14px;
+            line-height: 1.4;
+            flex: 1 1 220px;
+            min-width: 0;
         }
 
         .comic-card .comic-title,
@@ -2090,14 +2131,14 @@
             border: 2px solid #000 !important;
             border-radius: 0 !important;
             color: var(--muted) !important;
-            transform: skewX(-8deg);
             box-shadow: 3px 3px 0 #000;
         }
 
-        .reading-list-comic-info,
-        .comic-card,
-        .comic-list-item,
-        .reading-list-grid-item {
+        .reading-list-item .reading-list-image {
+            transform: skewX(-4deg);
+        }
+
+        .reading-list-comic-info {
             overflow: visible;
         }
 
