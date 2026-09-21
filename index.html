@@ -6,9 +6,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=2">
-    <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=2">
-    <link rel="apple-touch-icon" sizes="192x192" href="favicon-192.png?v=2">
+    <link rel="icon" type="image/png" href="favicon.png?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=3">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=3">
+    <link rel="icon" type="image/png" sizes="512x512" href="favicon-512.png?v=3">
+    <link rel="apple-touch-icon" sizes="192x192" href="favicon-192.png?v=3">
     <script src="https://unpkg.com/lucide@latest"></script>
     <title>Comics Tracker — Marvel</title>
     <style>
@@ -1102,12 +1104,17 @@
 
         .list-input-group {
             display: flex;
+            flex-wrap: nowrap;
+            align-items: stretch;
             gap: 10px;
             margin-bottom: 20px;
+            width: 100%;
+            max-width: 100%;
         }
 
         .list-input-group input {
-            flex: 1;
+            flex: 1 1 auto;
+            min-width: 0;
             max-width: 400px;
             background: rgba(71, 85, 105, 0.8);
             border: 2px solid #64748b;
@@ -3049,17 +3056,40 @@
             display: flex;
             align-items: stretch;
             justify-content: flex-start;
-            flex-wrap: wrap;
-            gap: 12px;
-            width: fit-content;
+            flex-wrap: nowrap;
+            gap: 10px;
+            width: 100%;
             max-width: 100%;
             margin-bottom: 20px;
         }
 
         .list-input-group .field-skew {
-            flex: 0 0 auto;
-            width: min(400px, 100vw - 48px);
+            flex: 1 1 auto;
+            width: auto;
+            min-width: 0;
             max-width: 400px;
+        }
+
+        .list-input-group > input:not(.field-input) {
+            flex: 1 1 auto;
+            min-width: 0;
+            max-width: 400px;
+        }
+
+        .list-add-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .list-add-btn [data-lucide],
+        .list-add-btn .ico {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2.5px;
         }
 
         .form-group > .field-skew,
@@ -3153,12 +3183,13 @@
         }
 
         .header-nav-divider {
-            width: 3px;
-            align-self: stretch;
-            min-height: 28px;
-            max-height: 36px;
-            margin: 0 14px;
-            background: rgba(238, 242, 255, 0.28);
+            width: 1px;
+            align-self: center;
+            height: 26px;
+            margin: 0 16px;
+            background: rgba(148, 163, 184, 0.22);
+            box-shadow: none;
+            border: none;
             flex-shrink: 0;
         }
 
@@ -3348,6 +3379,37 @@
                 margin-top: 0 !important;
                 padding: 12px 15px 15px !important;
             }
+
+            .list-input-group {
+                flex-wrap: nowrap !important;
+                width: 100% !important;
+                gap: 8px !important;
+            }
+
+            .list-input-group .field-skew,
+            .list-input-group > input:not(.field-input) {
+                flex: 1 1 auto !important;
+                width: auto !important;
+                min-width: 0 !important;
+                max-width: none !important;
+            }
+
+            .list-add-btn {
+                width: 44px !important;
+                min-width: 44px !important;
+                height: 44px !important;
+                padding: 0 !important;
+            }
+
+            .list-add-btn .list-add-btn-text {
+                display: none !important;
+            }
+
+            .list-add-btn [data-lucide],
+            .list-add-btn .ico {
+                width: 22px !important;
+                height: 22px !important;
+            }
         }
     
     </style>
@@ -3373,7 +3435,7 @@
     <div class="site-top">
         <div class="header top-bar">
             <div class="header-brand">
-                <img src="favicon-192.png?v=2" alt="" class="header-logo" width="32" height="32" decoding="async">
+                <img src="favicon-192.png?v=3" alt="" class="header-logo" width="32" height="32" decoding="async">
                 <h1><span class="header-title-text">Comics Tracker</span></h1>
             </div>
             <div class="header-right">
@@ -3423,7 +3485,7 @@
             
             <div class="list-input-group">
                 <input type="text" id="newListName" placeholder="Название нового списка чтения">
-                <button class="btn btn-primary" onclick="addReadingList()">Добавить список</button>
+                <button type="button" class="btn btn-primary list-add-btn" onclick="addReadingList()" title="Добавить список" aria-label="Добавить список"><i data-lucide="plus"></i><span class="list-add-btn-text">Добавить список</span></button>
             </div>
 
             <div class="reading-lists-mobile-block">
