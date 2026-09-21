@@ -703,25 +703,29 @@
         .reading-list-item .comic-actions,
         .reading-list-grid-item .comic-actions {
             opacity: 1;
+            justify-content: flex-end;
         }
 
-        .reading-list-item .comic-actions .action-btn,
-        .reading-list-grid-item .comic-actions .action-btn {
+        .reading-list-item:not(:hover) .comic-actions .action-btn,
+        .reading-list-grid-item:not(:hover) .comic-actions .action-btn {
+            display: none;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+        }
+
+        .reading-list-item:not(:hover) .comic-actions .bookmark-action-btn.active,
+        .reading-list-grid-item:not(:hover) .comic-actions .bookmark-action-btn.active {
+            display: inline-flex;
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .reading-list-item:hover .comic-actions .action-btn,
         .reading-list-grid-item:hover .comic-actions .action-btn {
+            display: inline-flex;
             opacity: 1;
             pointer-events: auto;
-        }
-
-        .reading-list-item .comic-actions .bookmark-action-btn.active,
-        .reading-list-grid-item .comic-actions .bookmark-action-btn.active {
-            opacity: 1;
-            pointer-events: auto;
+            transition: opacity 0.3s ease;
         }
 
         .action-btn {
@@ -1004,45 +1008,27 @@
             right: 15px;
             display: flex;
             gap: 5px;
+            justify-content: flex-end;
         }
 
-        .reading-list-card-actions .action-btn {
+        .reading-list-card:not(:hover):not(.hovered) .reading-list-card-actions .action-btn {
+            display: none;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+        }
+
+        .reading-list-card:not(:hover):not(.hovered) .reading-list-card-actions .list-slot-btn.active {
+            display: inline-flex;
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .reading-list-card:hover .reading-list-card-actions .action-btn,
         .reading-list-card.hovered .reading-list-card-actions .action-btn {
+            display: inline-flex;
             opacity: 1;
             pointer-events: auto;
-        }
-
-        .reading-list-card-actions .list-slot-btn.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .reading-list-slot-badge {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            min-width: 28px;
-            height: 28px;
-            padding: 0 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Oswald', sans-serif;
-            font-weight: 700;
-            font-size: 15px;
-            background: var(--yellow);
-            color: #000;
-            border: 2px solid #000;
-            box-shadow: 2px 2px 0 #000;
-            z-index: 3;
-            pointer-events: none;
-            transform: skewX(10deg);
+            transition: opacity 0.3s ease;
         }
 
         .list-slot-btn {
@@ -1252,11 +1238,11 @@
             }
 
             .header {
-                position: relative !important;
-                top: auto !important;
-                left: auto !important;
-                right: auto !important;
-                z-index: 10 !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                z-index: 1000 !important;
             }
 
             .tabs {
@@ -1265,6 +1251,7 @@
                 left: auto !important;
                 right: auto !important;
                 z-index: 9 !important;
+                margin-top: 52px;
                 margin-bottom: 0;
             }
             .content-header {
@@ -1323,7 +1310,11 @@
                 height: 140px;
                 font-size: 32px;
             }
-            .reading-list-mode-toggle, .reading-list-card-actions button[title^="Открыть как"] {
+            .reading-list-mode-toggle {
+                display: none !important;
+            }
+
+            .reading-list-card:not(:hover):not(.hovered) .reading-list-card-actions .list-slot-btn:not(.active) {
                 display: none !important;
             }
             .reading-list-card-meta {
@@ -4855,13 +4846,8 @@ function getSortedComicsForList(listName) {
 				} else {
 					isActive = expandedLists.has(listName);
 				}
-				const slotIndex = readingListsMode === 'double' ? openedLists.indexOf(listName) : -1;
-				const slotBadge = slotIndex >= 0
-					? `<div class="reading-list-slot-badge" title="Открыт в колонке ${slotIndex + 1}">${slotIndex + 1}</div>`
-					: '';
 				return `
-					<div class="reading-list-card ${isActive ? 'active' : ''}${slotIndex >= 0 ? ' has-open-slot' : ''}" onmouseenter="this.classList.add('hovered')" onmouseleave="this.classList.remove('hovered')" onclick="toggleReadingList('${listName}')">
-						${slotBadge}
+					<div class="reading-list-card ${isActive ? 'active' : ''}" onmouseenter="this.classList.add('hovered')" onmouseleave="this.classList.remove('hovered')" onclick="toggleReadingList('${listName}')">
 						<div class="reading-list-card-title">${listName}</div>
 						<div class="reading-list-card-meta">${readCount}/${listComics.length} прочитано | ${readIssues}/${totalIssues} выпусков</div>
 						<div class="reading-list-card-actions" onclick="event.stopPropagation()">
