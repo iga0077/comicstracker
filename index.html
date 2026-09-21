@@ -1149,14 +1149,38 @@
 
         @media (max-width: 768px) {
             .header {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-                padding: 15px 20px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 8px;
+                align-items: center;
+                justify-content: space-between;
+                padding: 10px 12px;
+                min-height: 52px;
             }
+
+            .header h1 {
+                font-size: 17px;
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+
+            .header-right {
+                margin-right: 44px;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            #userName {
+                max-width: 140px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-size: 13px;
+            }
+
             .main-content {
                 padding: 15px;
-                margin-top: 155px;
+                margin-top: 108px;
             }
             .content-header {
                 flex-direction: column;
@@ -1332,39 +1356,42 @@
                 padding: 4px;
             }
             .tabs {
-                position: sticky;
-                top: 0;
+                position: fixed !important;
+                top: 52px !important;
                 left: 0;
                 right: 0;
-                z-index: auto;
-                background: rgba(51, 65, 85, 0.95);
-                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                z-index: 999 !important;
+                background: rgba(15, 23, 42, 0.98) !important;
+                border-bottom: 3px solid #000;
+                box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
                 margin-bottom: 0;
-                padding: 0 0;
+                padding: 6px 8px 10px;
                 display: block !important;
             }
             .tab-buttons {
                 display: flex !important;
-                gap: 0;
+                gap: 8px;
                 width: 100%;
+                overflow: visible;
             }
             .tab-button {
                 flex: 1 1 0;
                 min-width: 0;
-                font-size: 15px;
-                padding: 12px 0;
-                border-bottom: none;
-                background: transparent;
-                color: #cbd5e1;
+                font-size: 13px;
+                padding: 10px 6px;
+                border-bottom: none !important;
+                background: transparent !important;
+                color: var(--muted, #94a3b8) !important;
                 font-weight: 600;
                 border-radius: 0;
+                justify-content: center;
             }
             .tab-indicator {
                 display: none;
             }
             .tab-button.active {
-                color: #f59e0b;
-                background: rgba(245, 158, 11, 0.1);
+                color: #000 !important;
+                background: transparent !important;
             }
             .reading-lists-toggle-btn {
                 display: flex !important;
@@ -2758,7 +2785,7 @@
             position: relative;
             display: inline-block;
             min-width: 250px;
-            transform: skewX(-8deg);
+            transform: none;
             vertical-align: middle;
             z-index: 1;
         }
@@ -2789,7 +2816,7 @@
             cursor: pointer;
             font: inherit;
             font-size: 14px;
-            transform: skewX(8deg);
+            transform: none;
         }
 
         .custom-select-trigger span {
@@ -2813,7 +2840,7 @@
             z-index: 12050;
             max-height: 260px;
             overflow-y: auto;
-            transform: skewX(8deg);
+            transform: none;
         }
 
         .custom-select-menu.custom-select-menu-floating {
@@ -3067,10 +3094,10 @@
         <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" onclick="setSidebarOpen(false)" title="Закрыть"><i data-lucide="x"></i></button>
         <div class="sidebar-actions">
             <button type="button" class="sidebar-btn sidebar-btn-yellow" onclick="exportData()"><i data-lucide="upload"></i> Экспорт всех данных (JSON)</button>
-            <button type="button" class="sidebar-btn sidebar-btn-panel" onclick="importData()"><i data-lucide="download"></i> Импорт данных</button>
-            <button type="button" class="sidebar-btn sidebar-btn-green" onclick="resetAllReadStatus()"><i data-lucide="rotate-ccw"></i> Сбросить прочитанное</button>
+            <button type="button" class="sidebar-btn sidebar-btn-green" onclick="importData()"><i data-lucide="download"></i> Импорт данных</button>
+            <button type="button" class="sidebar-btn sidebar-btn-panel" onclick="resetAllReadStatus()"><i data-lucide="rotate-ccw"></i> Сбросить прочитанное</button>
             <button type="button" class="sidebar-btn sidebar-btn-red" onclick="deleteAllData()"><i data-lucide="trash-2"></i> Удалить все данные</button>
-            <button type="button" id="logoutBtn" class="sidebar-btn sidebar-btn-panel" onclick="logout()" style="display:none;">Выйти</button>
+            <button type="button" id="logoutBtn" class="sidebar-btn sidebar-btn-panel" onclick="logout()" style="display:none;"><i data-lucide="log-out"></i> Выйти</button>
         </div>
     </div>
 
