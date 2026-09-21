@@ -2151,7 +2151,10 @@
 
         .reading-lists-toggle-btn {
             position: relative;
-            z-index: 5;
+            z-index: 50;
+            transform: skewX(-8deg);
+            cursor: pointer;
+            touch-action: manipulation;
         }
 
         .comic-card .comic-title,
@@ -2382,15 +2385,37 @@
             z-index: 2000 !important;
             background: rgba(7, 13, 24, 0.98) !important;
             border-left: var(--border-heavy) !important;
-            padding: 100px 25px 25px !important;
+            padding: 56px 25px 25px !important;
             transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
         }
 
         .sidebar.open {
             right: 0 !important;
         }
 
-        .sidebar button {
+        .sidebar-close-btn {
+            position: absolute !important;
+            top: 14px;
+            right: 14px;
+            width: 42px !important;
+            height: 42px !important;
+            padding: 0 !important;
+            margin: 0 0 12px !important;
+            justify-content: center;
+            transform: skewX(-8deg);
+            background: var(--bg-panel-2) !important;
+            color: var(--text) !important;
+            z-index: 3;
+        }
+
+        .sidebar-close-btn:hover {
+            transform: skewX(-8deg) translate(-2px, -2px);
+            background: var(--yellow) !important;
+            color: #000 !important;
+        }
+
+        .sidebar button:not(.sidebar-close-btn) {
             position: relative;
             width: 100%;
             border: var(--border-heavy) !important;
@@ -2401,7 +2426,10 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            transform: none;
+            transform: skewX(-8deg);
+            margin-bottom: 12px;
+            cursor: pointer;
+            font: inherit;
         }
 
         .sidebar button::before,
@@ -2409,12 +2437,18 @@
             display: none !important;
         }
 
-        .sidebar button:hover {
-            transform: translate(-2px, -2px);
+        .sidebar button:not(.sidebar-close-btn):hover {
+            transform: skewX(-8deg) translate(-2px, -2px);
             background: #1e293b !important;
         }
 
-        .sidebar button[style*="ef4444"], .sidebar .btn-danger {
+        .sidebar button .ico,
+        .sidebar button [data-lucide] {
+            transform: skewX(8deg);
+        }
+
+        .sidebar .sidebar-danger-btn,
+        .sidebar .btn-danger {
             background: var(--red) !important;
             color: #fff !important;
         }
@@ -2444,12 +2478,23 @@
         }
 
         body.sidebar-open::after {
-            content: '';
+            display: none;
+        }
+
+        .sidebar-backdrop {
+            display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.55);
             z-index: 1999;
-            pointer-events: auto;
+            background: rgba(0, 0, 0, 0.55);
+            border: none;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        body.sidebar-open .sidebar-backdrop {
+            display: block;
         }
 
         body.sidebar-open .settings-btn {
@@ -2673,11 +2718,6 @@
             text-overflow: ellipsis;
         }
 
-        .custom-select.open .custom-select-trigger {
-            border-color: var(--yellow);
-            box-shadow: 3px 3px 0 #000, 0 0 0 2px var(--yellow);
-        }
-
         .custom-select-menu {
             position: absolute;
             top: calc(100% + 8px);
@@ -2849,6 +2889,40 @@
             max-width: 400px;
         }
 
+        .form-group > .field-skew,
+        .form-group > .field-skew-inline {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .form-group input.field-input,
+        .form-group textarea.field-input,
+        .list-input-group input.field-input,
+        .controls input.field-input.search-box {
+            width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+
+        .form-group input.field-input:focus,
+        .form-group textarea.field-input:focus,
+        .list-input-group input.field-input:focus,
+        .controls input.field-input.search-box:focus {
+            outline: none !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .form-group input:not(.field-input),
+        .form-group textarea:not(.field-input) {
+            border-radius: 0 !important;
+        }
+
+        .custom-select.open .custom-select-trigger {
+            border-color: var(--yellow);
+            box-shadow: 4px 4px 0 #000;
+        }
+
         html {
             scrollbar-width: thin;
             scrollbar-color: var(--yellow, #ffd400) #0f172a;
@@ -2907,11 +2981,13 @@
         <button class="settings-btn" onclick="toggleSidebar()" title="Настройки"><i data-lucide="settings"></i></button>
         <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImport(event)">
     </div>
+    <button type="button" id="sidebarBackdrop" class="sidebar-backdrop" onclick="setSidebarOpen(false)" aria-label="Закрыть настройки"></button>
     <div class="sidebar" id="sidebar">
-        <button onclick="exportData()"><i data-lucide="upload"></i> Экспорт всех данных (JSON)</button>
-        <button onclick="importData()"><i data-lucide="download"></i> Импорт данных</button>
-        <button onclick="resetAllReadStatus()"><i data-lucide="rotate-ccw"></i> Сбросить прочитанное</button>
-        <button class="btn-danger" onclick="deleteAllData()" style="background: #ef4444;"><i data-lucide="trash-2"></i> Удалить все данные</button>
+        <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" onclick="setSidebarOpen(false)" title="Закрыть"><i data-lucide="x"></i></button>
+        <button type="button" onclick="exportData()"><i data-lucide="upload"></i> Экспорт всех данных (JSON)</button>
+        <button type="button" onclick="importData()"><i data-lucide="download"></i> Импорт данных</button>
+        <button type="button" onclick="resetAllReadStatus()"><i data-lucide="rotate-ccw"></i> Сбросить прочитанное</button>
+        <button type="button" class="btn-danger sidebar-danger-btn" onclick="deleteAllData()"><i data-lucide="trash-2"></i> Удалить все данные</button>
         <button id="logoutBtn" class="btn btn-secondary" onclick="logout()" style="display:none; margin-top: 20px;">Выйти</button>
     </div>
 
@@ -2946,7 +3022,7 @@
             </div>
 
                 <!-- Кнопка для сворачивания/разворачивания списка чтения на мобильных -->
-            <button type="button" class="reading-lists-toggle-btn mobile-top" id="readingListsToggleBtn" style="display:none;" onclick="toggleReadingListsCollapsed()">
+            <button type="button" class="reading-lists-toggle-btn mobile-top" id="readingListsToggleBtn" style="display:none;">
                 <span id="readingListsToggleIcon"><i data-lucide="menu"></i></span> <span id="readingListsToggleText">Показать списки</span>
             </button>
             
@@ -5189,22 +5265,29 @@ function getSortedComicsForList(listName) {
                 btn.style.display = 'flex';
                 if (readingListsCollapsed) {
                     grid.classList.remove('mobile-visible');
+                    grid.style.setProperty('display', 'none', 'important');
                     document.getElementById('readingListsToggleIcon').innerHTML = icon('menu');
                     document.getElementById('readingListsToggleText').textContent = 'Показать списки';
                 } else {
                     grid.classList.add('mobile-visible');
+                    grid.style.setProperty('display', 'grid', 'important');
                     document.getElementById('readingListsToggleIcon').innerHTML = icon('chevron-up');
                     document.getElementById('readingListsToggleText').textContent = 'Скрыть списки';
                 }
             } else {
                 btn.style.display = 'none';
                 grid.classList.remove('mobile-visible');
+                grid.style.removeProperty('display');
                 readingListsCollapsed = true;
             }
             refreshIcons();
         }
 
-        function toggleReadingListsCollapsed() {
+        function toggleReadingListsCollapsed(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
             readingListsCollapsed = !readingListsCollapsed;
             updateReadingListsMobileToggle();
         }
@@ -5345,22 +5428,30 @@ function getSortedComicsForList(listName) {
         // --- SIDEBAR LOGIC ---
         function setSidebarOpen(isOpen) {
             const sidebar = document.getElementById('sidebar');
+            if (!sidebar) return;
             sidebar.classList.toggle('open', isOpen);
             document.body.classList.toggle('sidebar-open', isOpen);
+            refreshIcons();
         }
+
+        window.setSidebarOpen = setSidebarOpen;
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             setSidebarOpen(!sidebar.classList.contains('open'));
-            refreshIcons();
         }
+
         document.addEventListener('mousedown', function(e) {
             const sidebar = document.getElementById('sidebar');
             const settingsBtn = document.querySelector('.settings-btn');
-            if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !settingsBtn.contains(e.target)) {
-                setSidebarOpen(false);
-            }
+            const backdrop = document.getElementById('sidebarBackdrop');
+            if (!sidebar || !sidebar.classList.contains('open')) return;
+            if (sidebar.contains(e.target)) return;
+            if (settingsBtn && settingsBtn.contains(e.target)) return;
+            setSidebarOpen(false);
         });
+
+        document.getElementById('readingListsToggleBtn')?.addEventListener('click', toggleReadingListsCollapsed);
         // --- AUTH BUTTONS VISIBILITY ---
         auth.onAuthStateChanged(user => {
             if (user) {
@@ -5397,16 +5488,16 @@ function getSortedComicsForList(listName) {
                         db.collection('comics').doc(user.uid).delete().then(() => {
                             clearLocalData();
                             alert('Все данные успешно удалены из облака и локально!');
-                            document.getElementById('sidebar').classList.remove('open');
+                            setSidebarOpen(false);
                         }).catch((error) => {
                             clearLocalData();
                             alert('Ошибка при удалении из облака, но локальные данные удалены.\n' + error.message);
-                            document.getElementById('sidebar').classList.remove('open');
+                            setSidebarOpen(false);
                         });
                     } else {
                         clearLocalData();
                         alert('Все данные успешно удалены!');
-                        document.getElementById('sidebar').classList.remove('open');
+                        setSidebarOpen(false);
                     }
                 }
             }
