@@ -696,11 +696,33 @@
         }
 
         .comic-card:hover .comic-actions,
-		.comic-list-item:hover .comic-actions,
-		.reading-list-item:hover .comic-actions,
-		.reading-list-grid-item:hover .comic-actions {
+		.comic-list-item:hover .comic-actions {
 			opacity: 1;
 		}
+
+        .reading-list-item .comic-actions,
+        .reading-list-grid-item .comic-actions {
+            opacity: 1;
+        }
+
+        .reading-list-item .comic-actions .action-btn,
+        .reading-list-grid-item .comic-actions .action-btn {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .reading-list-item:hover .comic-actions .action-btn,
+        .reading-list-grid-item:hover .comic-actions .action-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .reading-list-item .comic-actions .bookmark-action-btn.active,
+        .reading-list-grid-item .comic-actions .bookmark-action-btn.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
 
         .action-btn {
             width: 32px;
@@ -947,8 +969,8 @@
         }
 
         .reading-list-card.active {
-            border-color: #f59e0b;
-            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--yellow, #facc15);
+            background: rgba(250, 204, 21, 0.12);
         }
 		
 		.reading-list-card.dragging {
@@ -982,12 +1004,58 @@
             right: 15px;
             display: flex;
             gap: 5px;
+        }
+
+        .reading-list-card-actions .action-btn {
             opacity: 0;
+            pointer-events: none;
             transition: opacity 0.3s ease;
         }
 
-        .reading-list-card:hover .reading-list-card-actions {
+        .reading-list-card:hover .reading-list-card-actions .action-btn,
+        .reading-list-card.hovered .reading-list-card-actions .action-btn {
             opacity: 1;
+            pointer-events: auto;
+        }
+
+        .reading-list-card-actions .list-slot-btn.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .reading-list-slot-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            min-width: 28px;
+            height: 28px;
+            padding: 0 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            background: var(--yellow);
+            color: #000;
+            border: 2px solid #000;
+            box-shadow: 2px 2px 0 #000;
+            z-index: 3;
+            pointer-events: none;
+            transform: skewX(10deg);
+        }
+
+        .list-slot-btn {
+            background: #334155 !important;
+            color: #f1f5f9 !important;
+            font-weight: 700 !important;
+            font-family: 'Oswald', sans-serif;
+            font-size: 14px !important;
+        }
+
+        .list-slot-btn.active {
+            background: var(--yellow) !important;
+            color: #000 !important;
         }
 
         .expand-icon {
@@ -1180,7 +1248,24 @@
 
             .main-content {
                 padding: 15px;
-                margin-top: 108px;
+                margin-top: 0 !important;
+            }
+
+            .header {
+                position: relative !important;
+                top: auto !important;
+                left: auto !important;
+                right: auto !important;
+                z-index: 10 !important;
+            }
+
+            .tabs {
+                position: relative !important;
+                top: auto !important;
+                left: auto !important;
+                right: auto !important;
+                z-index: 9 !important;
+                margin-bottom: 0;
             }
             .content-header {
                 flex-direction: column;
@@ -1356,15 +1441,9 @@
                 padding: 4px;
             }
             .tabs {
-                position: fixed !important;
-                top: 52px !important;
-                left: 0;
-                right: 0;
-                z-index: 999 !important;
                 background: rgba(15, 23, 42, 0.98) !important;
                 border-bottom: 3px solid #000;
                 box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
-                margin-bottom: 0;
                 padding: 6px 8px 10px;
                 display: block !important;
             }
@@ -2041,6 +2120,19 @@
             background: var(--yellow) !important;
             color: #000 !important;
             box-shadow: 3px 3px 0 #000 !important;
+        }
+
+        .bookmark-action-btn.active svg,
+        .bookmark-action-btn.active [data-lucide] {
+            fill: #000 !important;
+            stroke: #000 !important;
+            color: #000 !important;
+        }
+
+        .bookmark-action-btn.active svg path,
+        .bookmark-star-filled svg path {
+            fill: #000 !important;
+            stroke: #000 !important;
         }
 
         .reading-list-item.read,
@@ -3419,7 +3511,8 @@
         function renderComicActions(comic, listName) {
             const readIcon = comic.isRead ? icon('book-open') : icon('check');
             const comicJson = JSON.stringify(comic).replace(/"/g, '&quot;');
-            const bookmark = listName ? `<button class="action-btn bookmark-action-btn ${currentlyReading[listName] === comic.id ? 'active' : ''}" onclick="toggleCurrentlyReading(${comic.id}, '${listName}')" title="${currentlyReading[listName] === comic.id ? 'Снять закладку' : 'Отметить как читаемый'}">${icon('star')}</button>` : '';
+            const isBookmarked = listName && currentlyReading[listName] === comic.id;
+            const bookmark = listName ? `<button class="action-btn bookmark-action-btn ${isBookmarked ? 'active' : ''}" onclick="toggleCurrentlyReading(${comic.id}, '${listName}')" title="${isBookmarked ? 'Снять закладку' : 'Отметить как читаемый'}">${icon('star', isBookmarked ? 'bookmark-star-filled' : '')}</button>` : '';
             return `${bookmark}
                 <button class="action-btn edit-btn" onclick="showComicModal(${comicJson})" title="Редактировать">${icon('pencil')}</button>
                 <button class="action-btn copy-btn" onclick="copyComic(${comic.id})" title="Копировать">${icon('copy')}</button>
@@ -4762,16 +4855,21 @@ function getSortedComicsForList(listName) {
 				} else {
 					isActive = expandedLists.has(listName);
 				}
+				const slotIndex = readingListsMode === 'double' ? openedLists.indexOf(listName) : -1;
+				const slotBadge = slotIndex >= 0
+					? `<div class="reading-list-slot-badge" title="Открыт в колонке ${slotIndex + 1}">${slotIndex + 1}</div>`
+					: '';
 				return `
-					<div class="reading-list-card ${isActive ? 'active' : ''}" onmouseenter="this.classList.add('hovered')" onmouseleave="this.classList.remove('hovered')" onclick="toggleReadingList('${listName}')">
+					<div class="reading-list-card ${isActive ? 'active' : ''}${slotIndex >= 0 ? ' has-open-slot' : ''}" onmouseenter="this.classList.add('hovered')" onmouseleave="this.classList.remove('hovered')" onclick="toggleReadingList('${listName}')">
+						${slotBadge}
 						<div class="reading-list-card-title">${listName}</div>
 						<div class="reading-list-card-meta">${readCount}/${listComics.length} прочитано | ${readIssues}/${totalIssues} выпусков</div>
 						<div class="reading-list-card-actions" onclick="event.stopPropagation()">
 							<button class="action-btn edit-btn" onclick="showListModal('${listName}')" title="Редактировать">${icon('pencil')}</button>
 							<button class="action-btn delete-btn" onclick="deleteReadingList('${listName}')" title="Удалить">${icon('trash-2')}</button>
 							${readingListsMode === 'double' ? `
-								<button class="action-btn" style="background: #334155; color: #f59e0b; font-weight: bold; border: 2px solid #64748b;" onclick="setOpenedList('${listName}', 0)" title="Открыть как первый">1</button>
-								<button class="action-btn" style="background: #334155; color: #f59e0b; font-weight: bold; border: 2px solid #64748b;" onclick="setOpenedList('${listName}', 1)" title="Открыть как второй">2</button>
+								<button class="action-btn list-slot-btn ${openedLists[0] === listName ? 'active' : ''}" onclick="setOpenedList('${listName}', 0)" title="Открыть как первый">1</button>
+								<button class="action-btn list-slot-btn ${openedLists[1] === listName ? 'active' : ''}" onclick="setOpenedList('${listName}', 1)" title="Открыть как второй">2</button>
 							` : ''}
 						</div>
 					</div>
@@ -4843,9 +4941,10 @@ function getSortedComicsForList(listName) {
         // Создание элемента сеточного вида для списка чтения
         function createReadingListGridItem(comic, listName, index) {
             const progress = comic.totalIssues > 0 ? (comic.readIssues / comic.totalIssues) * 100 : 0;
+            const isCurrent = listName && currentlyReading[listName] === comic.id;
             
             return `
-                <div class="reading-list-grid-item ${comic.isRead ? 'read' : ''}" data-comic-id="${comic.id}" data-list="${listName}">
+                <div class="reading-list-grid-item ${comic.isRead ? 'read' : ''}${isCurrent ? ' is-currently-reading' : ''}" data-comic-id="${comic.id}" data-list="${listName}">
                     <div class="reading-list-order-arrow">${index + 1}</div>
                     ${readingCoverMarkup(comic.cover, comic.title, 'reading-list-grid-image')}
                     <div class="reading-list-grid-info">
@@ -5461,8 +5560,9 @@ function getSortedComicsForList(listName) {
 
         function createReadingListItem(comic, listName) {
             const isMobile = window.innerWidth <= 768;
+            const isCurrent = listName && currentlyReading[listName] === comic.id;
             return `
-                <div class="reading-list-item ${comic.isRead ? 'read' : ''}" data-comic-id="${comic.id}" data-list="${listName}">
+                <div class="reading-list-item ${comic.isRead ? 'read' : ''}${isCurrent ? ' is-currently-reading' : ''}" data-comic-id="${comic.id}" data-list="${listName}">
                     <div class="reading-list-comic-info">
                         ${readingCoverMarkup(comic.cover, comic.title, 'reading-list-image')}
                         <div class="reading-list-text-info">
