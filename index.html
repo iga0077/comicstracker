@@ -3169,12 +3169,13 @@
 
         .header-logo {
             flex-shrink: 0;
-            width: 32px;
-            height: 32px;
+            width: auto;
+            height: 34px;
             object-fit: contain;
-            border: 2px solid #000;
-            box-shadow: 2px 2px 0 #000;
-            background: var(--bg-panel-2, #131f35);
+            border: none;
+            box-shadow: none;
+            background: none;
+            display: block;
         }
 
         .header-brand h1 {
@@ -3270,6 +3271,41 @@
             .main-content {
                 margin-top: 68px !important;
             }
+
+            .header-logo {
+                height: 50px;
+            }
+        }
+
+        .reading-list-title-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px 12px;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .reading-list-title-row h3 {
+            margin: 0 !important;
+            min-width: 0;
+        }
+
+        .goto-current-read-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            padding: 8px 12px !important;
+            min-height: 40px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .goto-current-read-btn .goto-star-filled svg,
+        .goto-current-read-btn .goto-star-filled svg path {
+            fill: #000 !important;
+            stroke: #000 !important;
         }
 
         /* Mobile top bar — must come after COMIC_DARK_THEME_V2 (theme re-fixed .tabs) */
@@ -3435,7 +3471,7 @@
     <div class="site-top">
         <div class="header top-bar">
             <div class="header-brand">
-                <img src="favicon-192.png?v=3" alt="" class="header-logo" width="32" height="32" decoding="async">
+                <img src="favicon-192.png?v=3" alt="" class="header-logo" decoding="async">
                 <h1><span class="header-title-text">Comics Tracker</span></h1>
             </div>
             <div class="header-right">
@@ -4491,23 +4527,23 @@
 
 		// Прокрутка к текущему комиксу при открытии списка
 		function scrollToCurrentlyReading(listName) {
-			if (currentlyReading[listName]) {
-				setTimeout(() => {
-					const element = document.querySelector(`[data-comic-id="${currentlyReading[listName]}"]`);
-					if (element) {
-						element.scrollIntoView({ 
-							behavior: 'smooth', 
-							block: 'center' 
-						});
-						
-						// Добавляем временное выделение
-						element.style.boxShadow = '0 0 20px rgba(245, 158, 11, 0.6)';
-						setTimeout(() => {
-							element.style.boxShadow = '';
-						}, 2000);
-					}
-				}, 300);
-			}
+			const comicId = currentlyReading[listName];
+			if (!comicId) return;
+			setTimeout(() => {
+				const element = document.querySelector(
+					`.reading-list-item[data-list="${listName}"][data-comic-id="${comicId}"], .reading-list-grid-item[data-list="${listName}"][data-comic-id="${comicId}"]`
+				);
+				if (element) {
+					element.scrollIntoView({
+						behavior: 'smooth',
+						block: 'center'
+					});
+					element.style.boxShadow = '0 0 20px rgba(255, 212, 0, 0.75)';
+					setTimeout(() => {
+						element.style.boxShadow = '';
+					}, 2000);
+				}
+			}, 150);
 		}
 
         // Переключение статуса прочитанности
@@ -5794,10 +5830,17 @@ function getSortedComicsForList(listName) {
             const viewMode = listViewModes[listName] || 'list';
             const sortMode = listSortModes[listName] || 'years';
             const isMobile = window.innerWidth <= 768;
+            const hasCurrentRead = currentlyReading[listName];
+            const gotoCurrentBtn = hasCurrentRead
+                ? `<button type="button" class="btn btn-primary btn-slab goto-current-read-btn" onclick="scrollToCurrentlyReading('${listName.replace(/'/g, "\\'")}')" title="Прокрутить к отмеченному комиксу">Перейти к ${icon('star', 'goto-star-filled')}</button>`
+                : '';
             return `
                 <div class="reading-list-content active" style="">
                     <div class="reading-list-view-controls">
-                        <h3 style="color: #eef2ff; margin: 0; flex: 1;">${listName}</h3>
+                        <div class="reading-list-title-row">
+                            <h3 style="color: #eef2ff; margin: 0;">${listName}</h3>
+                            ${gotoCurrentBtn}
+                        </div>
                         ${!isMobile ? `
                             <button type="button" class="btn btn-secondary btn-slab" onclick="exportReadingListToTxt('${listName}')" title="Экспорт списка в TXT">${icon('file-text')}</button>
                             <button type="button" class="btn btn-secondary btn-slab" onclick="exportReadingListToJson('${listName}')" title="Экспорт списка в JSON">${icon('file-code')}</button>
