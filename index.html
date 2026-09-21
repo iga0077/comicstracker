@@ -786,8 +786,8 @@
             font-weight: 500;
         }
 
-        .form-group input,
-        .form-group textarea {
+        .form-group > input:not(.field-input),
+        .form-group > textarea:not(.field-input) {
             width: 100%;
             background: rgba(71, 85, 105, 0.8);
             border: 2px solid #64748b;
@@ -798,8 +798,8 @@
             transition: all 0.3s ease;
         }
 
-        .form-group input:focus,
-        .form-group textarea:focus {
+        .form-group > input:not(.field-input):focus,
+        .form-group > textarea:not(.field-input):focus {
             outline: none;
             border-color: #f59e0b;
             box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
@@ -1274,12 +1274,21 @@
                 cursor: pointer;
                 width: 100%;
             }
-            .reading-lists-grid-page {
-                display: none;
+            .reading-lists-grid-wrap:not(.is-open) {
+                display: none !important;
             }
-            .reading-lists-grid-page.mobile-visible {
-                display: grid !important;
+
+            .reading-lists-grid-wrap.is-open {
+                display: block !important;
                 margin-bottom: 10px;
+            }
+
+            .reading-lists-grid-wrap.is-open .reading-lists-grid-page {
+                display: grid !important;
+            }
+
+            #readingListsToggleBtn {
+                display: flex !important;
             }
 
             .reading-list-item .reading-list-comic-info {
@@ -1800,20 +1809,6 @@
             transform: skewX(var(--skew)) translate(-1px, -1px);
         }
 
-        .search-box, .sort-select {
-            background: var(--bg-panel);
-            border: var(--border-heavy);
-            border-radius: 0;
-            color: var(--text);
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 3px 3px 0 rgba(0,0,0,0.5);
-            transform: skewX(-4deg);
-        }
-
-        .search-box:focus, .sort-select:focus {
-            border-color: var(--yellow);
-            box-shadow: 3px 3px 0 #000, 0 0 0 2px var(--yellow);
-        }
-
         .view-toggle, .reading-list-sort-toggle, .reading-list-view-toggle {
             border: var(--border-heavy);
             box-shadow: var(--shadow-hard);
@@ -2149,12 +2144,33 @@
             background: #ffe566 !important;
         }
 
-        .reading-lists-toggle-btn {
-            position: relative;
-            z-index: 50;
+        .reading-lists-mobile-block {
+            margin-bottom: 12px;
+        }
+
+        #readingListsToggleBtn {
+            display: none;
+            width: 100%;
+            justify-content: center;
+            gap: 8px;
             transform: skewX(-8deg);
-            cursor: pointer;
             touch-action: manipulation;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .reading-lists-grid-wrap {
+            display: block;
+        }
+
+        @media (min-width: 769px) {
+            #readingListsToggleBtn {
+                display: none !important;
+            }
+
+            .reading-lists-grid-wrap {
+                display: block !important;
+            }
         }
 
         .comic-card .comic-title,
@@ -2385,7 +2401,7 @@
             z-index: 2000 !important;
             background: rgba(7, 13, 24, 0.98) !important;
             border-left: var(--border-heavy) !important;
-            padding: 56px 25px 25px !important;
+            padding: 62px 22px 24px !important;
             transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             overflow-y: auto;
         }
@@ -2396,17 +2412,22 @@
 
         .sidebar-close-btn {
             position: absolute !important;
-            top: 14px;
-            right: 14px;
+            top: 12px;
+            right: 12px;
             width: 42px !important;
             height: 42px !important;
             padding: 0 !important;
-            margin: 0 0 12px !important;
+            margin: 0 !important;
             justify-content: center;
             transform: skewX(-8deg);
             background: var(--bg-panel-2) !important;
             color: var(--text) !important;
             z-index: 3;
+            border: var(--border-heavy) !important;
+            box-shadow: var(--shadow-hard);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
         }
 
         .sidebar-close-btn:hover {
@@ -2415,42 +2436,77 @@
             color: #000 !important;
         }
 
-        .sidebar button:not(.sidebar-close-btn) {
+        .sidebar-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 8px;
+        }
+
+        .sidebar-btn {
             position: relative;
             width: 100%;
             border: var(--border-heavy) !important;
             border-radius: 0 !important;
-            background: var(--bg-panel-2) !important;
-            color: var(--text) !important;
             box-shadow: var(--shadow-hard);
             display: flex;
             align-items: center;
             gap: 10px;
             transform: skewX(-8deg);
-            margin-bottom: 12px;
+            margin: 0;
             cursor: pointer;
             font: inherit;
+            padding: 12px 14px;
         }
 
-        .sidebar button::before,
+        .sidebar-btn::before,
         .sidebar .btn::before {
             display: none !important;
         }
 
-        .sidebar button:not(.sidebar-close-btn):hover {
+        .sidebar-btn:hover {
             transform: skewX(-8deg) translate(-2px, -2px);
-            background: #1e293b !important;
         }
 
-        .sidebar button .ico,
-        .sidebar button [data-lucide] {
+        .sidebar-btn .ico,
+        .sidebar-btn [data-lucide] {
             transform: skewX(8deg);
         }
 
-        .sidebar .sidebar-danger-btn,
-        .sidebar .btn-danger {
+        .sidebar-btn-yellow {
+            background: var(--yellow) !important;
+            color: #000 !important;
+        }
+
+        .sidebar-btn-yellow:hover {
+            background: #ffe566 !important;
+        }
+
+        .sidebar-btn-panel {
+            background: var(--bg-panel-2) !important;
+            color: var(--text) !important;
+        }
+
+        .sidebar-btn-panel:hover {
+            background: #1e293b !important;
+        }
+
+        .sidebar-btn-green {
+            background: var(--green) !important;
+            color: #000 !important;
+        }
+
+        .sidebar-btn-green:hover {
+            background: #86efac !important;
+        }
+
+        .sidebar-btn-red {
             background: var(--red) !important;
             color: #fff !important;
+        }
+
+        .sidebar-btn-red:hover {
+            background: #ff5c54 !important;
         }
 
         .ico, [data-lucide] {
@@ -2617,8 +2673,9 @@
             border: 3px solid #000;
             background: var(--bg-panel, #0f172a);
             box-shadow: 3px 3px 0 #000;
-            overflow: visible;
+            overflow: hidden;
             transition: box-shadow 0.15s ease, border-color 0.15s ease;
+            box-sizing: border-box;
         }
 
         .field-skew-inline {
@@ -2671,6 +2728,18 @@
 
         .controls .field-skew-inline {
             min-width: 250px;
+            max-width: 100%;
+        }
+
+        .controls .field-skew-inline .search-box.field-input {
+            transform: skewX(10deg) !important;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            width: 100%;
+            min-width: 0;
+            padding: 11px 14px;
+            color: var(--text);
         }
 
         #collection .controls,
@@ -2680,6 +2749,11 @@
             z-index: 20;
         }
 
+        .controls .custom-select {
+            min-width: 250px;
+            flex-shrink: 0;
+        }
+
         .custom-select {
             position: relative;
             display: inline-block;
@@ -2687,6 +2761,13 @@
             transform: skewX(-8deg);
             vertical-align: middle;
             z-index: 1;
+        }
+
+        .custom-select .sort-select.select-native-hidden {
+            transform: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            border: none !important;
         }
 
         .custom-select.open {
@@ -2984,11 +3065,13 @@
     <button type="button" id="sidebarBackdrop" class="sidebar-backdrop" onclick="setSidebarOpen(false)" aria-label="Закрыть настройки"></button>
     <div class="sidebar" id="sidebar">
         <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" onclick="setSidebarOpen(false)" title="Закрыть"><i data-lucide="x"></i></button>
-        <button type="button" onclick="exportData()"><i data-lucide="upload"></i> Экспорт всех данных (JSON)</button>
-        <button type="button" onclick="importData()"><i data-lucide="download"></i> Импорт данных</button>
-        <button type="button" onclick="resetAllReadStatus()"><i data-lucide="rotate-ccw"></i> Сбросить прочитанное</button>
-        <button type="button" class="btn-danger sidebar-danger-btn" onclick="deleteAllData()"><i data-lucide="trash-2"></i> Удалить все данные</button>
-        <button id="logoutBtn" class="btn btn-secondary" onclick="logout()" style="display:none; margin-top: 20px;">Выйти</button>
+        <div class="sidebar-actions">
+            <button type="button" class="sidebar-btn sidebar-btn-yellow" onclick="exportData()"><i data-lucide="upload"></i> Экспорт всех данных (JSON)</button>
+            <button type="button" class="sidebar-btn sidebar-btn-panel" onclick="importData()"><i data-lucide="download"></i> Импорт данных</button>
+            <button type="button" class="sidebar-btn sidebar-btn-green" onclick="resetAllReadStatus()"><i data-lucide="rotate-ccw"></i> Сбросить прочитанное</button>
+            <button type="button" class="sidebar-btn sidebar-btn-red" onclick="deleteAllData()"><i data-lucide="trash-2"></i> Удалить все данные</button>
+            <button type="button" id="logoutBtn" class="sidebar-btn sidebar-btn-panel" onclick="logout()" style="display:none;">Выйти</button>
+        </div>
     </div>
 
     <div class="tabs">
@@ -3021,12 +3104,15 @@
                 <button class="btn btn-primary" onclick="addReadingList()">Добавить список</button>
             </div>
 
-                <!-- Кнопка для сворачивания/разворачивания списка чтения на мобильных -->
-            <button type="button" class="reading-lists-toggle-btn mobile-top" id="readingListsToggleBtn" style="display:none;">
-                <span id="readingListsToggleIcon"><i data-lucide="menu"></i></span> <span id="readingListsToggleText">Показать списки</span>
-            </button>
-            
-            <div class="reading-lists-grid-page" id="readingListsGrid"></div>
+            <div class="reading-lists-mobile-block">
+                <button type="button" class="btn btn-primary" id="readingListsToggleBtn" aria-expanded="false">
+                    <span id="readingListsToggleIcon"><i data-lucide="menu"></i></span>
+                    <span id="readingListsToggleText">Показать списки</span>
+                </button>
+                <div id="readingListsGridWrap" class="reading-lists-grid-wrap">
+                    <div class="reading-lists-grid-page" id="readingListsGrid"></div>
+                </div>
+            </div>
             <div id="readingListsContainer"></div>
         </div>
 
@@ -3292,8 +3378,8 @@
         }
 
         function initFormUi() {
-            initSkewFields();
             initCustomSelects();
+            initSkewFields();
         }
 
         document.addEventListener('click', (event) => {
@@ -4612,8 +4698,8 @@ function getSortedComicsForList(listName) {
                 globalToggle.style.display = 'none';
             }
             refreshIcons();
-            if (typeof updateReadingListsMobileToggle === 'function') {
-                updateReadingListsMobileToggle();
+            if (window.MobileReadingLists && typeof MobileReadingLists.apply === 'function') {
+                MobileReadingLists.apply();
             }
         }
 
@@ -5133,6 +5219,7 @@ function getSortedComicsForList(listName) {
             
             renderReadingLists();
             initFormUi();
+            MobileReadingLists.bind();
 
             const sortSelect = document.querySelector('#collection .sort-select');
             if (sortSelect) {
@@ -5253,53 +5340,53 @@ function getSortedComicsForList(listName) {
             renderReadingLists();
         }
 
-        // --- MOBILE: СВЕРТЫВАНИЕ СПИСКОВ ---
-        let readingListsCollapsed = true;
+        // --- MOBILE: сворачивание сетки списков чтения ---
+        const MobileReadingLists = {
+            open: false,
+            isMobile() {
+                return window.matchMedia('(max-width: 768px)').matches;
+            },
+            bind() {
+                const btn = document.getElementById('readingListsToggleBtn');
+                if (!btn || btn.dataset.bound === '1') return;
+                btn.dataset.bound = '1';
+                btn.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (!this.isMobile()) return;
+                    this.open = !this.open;
+                    this.apply();
+                });
+                window.addEventListener('resize', () => this.apply());
+                this.apply();
+            },
+            apply() {
+                const btn = document.getElementById('readingListsToggleBtn');
+                const wrap = document.getElementById('readingListsGridWrap');
+                const text = document.getElementById('readingListsToggleText');
+                const iconWrap = document.getElementById('readingListsToggleIcon');
+                if (!btn || !wrap) return;
 
-        function updateReadingListsMobileToggle() {
-            const isMobile = window.innerWidth <= 768;
-            const btn = document.getElementById('readingListsToggleBtn');
-            const grid = document.getElementById('readingListsGrid');
-            if (!btn || !grid) return;
-            if (isMobile) {
-                btn.style.display = 'flex';
-                if (readingListsCollapsed) {
-                    grid.classList.remove('mobile-visible');
-                    grid.style.setProperty('display', 'none', 'important');
-                    document.getElementById('readingListsToggleIcon').innerHTML = icon('menu');
-                    document.getElementById('readingListsToggleText').textContent = 'Показать списки';
+                if (this.isMobile()) {
+                    btn.style.display = 'flex';
+                    wrap.classList.toggle('is-open', this.open);
+                    btn.setAttribute('aria-expanded', this.open ? 'true' : 'false');
+                    if (text) {
+                        text.textContent = this.open ? 'Скрыть списки' : 'Показать списки';
+                    }
+                    if (iconWrap) {
+                        iconWrap.innerHTML = icon(this.open ? 'chevron-up' : 'menu');
+                    }
                 } else {
-                    grid.classList.add('mobile-visible');
-                    grid.style.setProperty('display', 'grid', 'important');
-                    document.getElementById('readingListsToggleIcon').innerHTML = icon('chevron-up');
-                    document.getElementById('readingListsToggleText').textContent = 'Скрыть списки';
+                    btn.style.display = 'none';
+                    wrap.classList.add('is-open');
+                    this.open = false;
+                    btn.setAttribute('aria-expanded', 'false');
                 }
-            } else {
-                btn.style.display = 'none';
-                grid.classList.remove('mobile-visible');
-                grid.style.removeProperty('display');
-                readingListsCollapsed = true;
+                refreshIcons();
             }
-            refreshIcons();
-        }
-
-        function toggleReadingListsCollapsed(event) {
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            readingListsCollapsed = !readingListsCollapsed;
-            updateReadingListsMobileToggle();
-        }
-
-        window.toggleReadingListsCollapsed = toggleReadingListsCollapsed;
-
-        window.addEventListener('resize', updateReadingListsMobileToggle);
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', updateReadingListsMobileToggle);
-        } else {
-            updateReadingListsMobileToggle();
-        }
+        };
+        window.MobileReadingLists = MobileReadingLists;
 
         // --- MOBILE: ОТКЛЮЧЕНИЕ DOUBLE-РЕЖИМА ---
         function enforceSingleListModeOnMobile() {
@@ -5451,7 +5538,6 @@ function getSortedComicsForList(listName) {
             setSidebarOpen(false);
         });
 
-        document.getElementById('readingListsToggleBtn')?.addEventListener('click', toggleReadingListsCollapsed);
         // --- AUTH BUTTONS VISIBILITY ---
         auth.onAuthStateChanged(user => {
             if (user) {
